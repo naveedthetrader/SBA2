@@ -1,0 +1,2520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SBA Result Management System — MALIK NAVEED</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ══ RESET & VARS ══ */
+:root{
+  --g1:#0d4a28;--g2:#1a6b3c;--g3:#27ae60;--gp:#e8f5ee;
+  --gold:#f1c40f;--gold2:#f39c12;--red:#c0392b;--blue:#2980b9;
+  --text:#1a1a1a;--sub:#555;--light:#888;--border:#dde8e2;
+  --white:#fff;--bg:#f4f7f5;
+  --urdu:'Noto Nastaliq Urdu',serif;
+  --body:'DM Sans',sans-serif;
+  --r:12px;--rs:8px;
+  --sh:0 2px 12px rgba(13,74,40,.10);
+  --shh:0 8px 28px rgba(13,74,40,.18);
+  --sw:250px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+button{cursor:pointer;font-family:inherit}
+input,select,textarea{font-family:inherit}
+ul{list-style:none}
+.hidden{display:none!important}
+.urdu{font-family:var(--urdu);direction:rtl}
+
+/* ══ SCREENS ══ */
+.screen{display:none}
+.screen.active{display:block}
+#appScreen.active{display:flex}
+
+/* ══ LOGIN ══ */
+.login-wrap{
+  min-height:100vh;
+  background:linear-gradient(135deg,#0a3d22 0%,#1a6b3c 50%,#0a3d22 100%);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  position:relative;overflow:hidden;
+}
+.login-wrap::before,.login-wrap::after{
+  content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.04);
+}
+.login-wrap::before{width:500px;height:500px;top:-200px;left:-150px}
+.login-wrap::after{width:350px;height:350px;bottom:-120px;right:-100px}
+.login-card{
+  background:#fff;border-radius:22px;padding:36px 32px;
+  width:100%;max-width:430px;position:relative;z-index:2;
+  box-shadow:0 30px 80px rgba(0,0,0,.35);
+  animation:fadeUp .5s ease;
+}
+.login-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:5px;
+  background:linear-gradient(90deg,#1a6b3c,#27ae60,#f39c12,#27ae60,#1a6b3c);
+  border-radius:22px 22px 0 0;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.login-head{text-align:center;margin-bottom:26px}
+.login-school-urdu{font-size:13px;color:#888;margin-bottom:4px}
+.login-title{font-size:18px;font-weight:800;color:var(--text);margin:2px 0}
+.login-by{font-size:13px;font-weight:700;color:var(--red)}
+.login-badge{display:inline-block;font-size:10px;background:var(--gp);color:var(--g2);padding:2px 10px;border-radius:20px;margin-top:6px;font-weight:700;letter-spacing:.5px}
+.role-tabs{display:flex;gap:6px;background:#f2f2f2;border-radius:10px;padding:4px;margin-bottom:20px}
+.role-tab{flex:1;padding:9px 6px;border-radius:8px;border:none;font-size:13px;font-weight:700;transition:all .2s;background:transparent;color:#666}
+.role-tab.active{background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;box-shadow:0 4px 14px rgba(26,107,60,.35)}
+.fgrp{margin-bottom:16px}
+.fgrp label{display:block;font-size:12px;font-weight:700;color:#444;margin-bottom:5px}
+.finp{width:100%;padding:11px 14px;border:2px solid #e0e0e0;border-radius:var(--rs);font-size:14px;outline:none;transition:border-color .2s}
+.finp:focus{border-color:var(--g2)}
+.pw-wrap{position:relative}
+.pw-wrap .finp{padding-right:42px}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;color:#999}
+.login-err{color:var(--red);font-size:12px;background:#fdecea;padding:8px 12px;border-radius:var(--rs);margin-bottom:12px}
+.btn-login{width:100%;padding:13px;background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:800;box-shadow:0 6px 20px rgba(26,107,60,.4);transition:transform .2s}
+.btn-login:hover{transform:translateY(-2px)}
+.login-foot{text-align:center;margin-top:18px;font-size:12px;color:#888}
+
+/* ══ SIDEBAR ══ */
+.sidebar{
+  width:var(--sw);background:linear-gradient(180deg,#0a3d22 0%,#1a6b3c 100%);
+  display:flex;flex-direction:column;height:100vh;
+  position:fixed;left:0;top:0;z-index:100;
+  transition:transform .3s;overflow-y:auto;overflow-x:hidden;
+}
+.sb-head{display:flex;align-items:center;gap:10px;padding:18px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sb-icon{width:36px;height:36px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sb-title{color:#fff;font-weight:800;font-size:13px;line-height:1.2}
+.sb-sub{color:rgba(255,255,255,.55);font-size:10px}
+.sb-nav{flex:1;padding:10px 8px}
+.sb-section{font-size:9px;color:rgba(255,255,255,.3);letter-spacing:1.5px;text-transform:uppercase;padding:12px 10px 4px}
+.sb-nav li{margin-bottom:2px}
+.sb-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:9px;color:rgba(255,255,255,.7);font-size:12.5px;font-weight:500;transition:all .2s;width:100%;text-align:left;background:none;border:none}
+.sb-btn:hover,.sb-nav li.active .sb-btn{background:rgba(255,255,255,.13);color:#fff}
+.sb-ico{width:18px;text-align:center;font-size:14px;flex-shrink:0}
+.sb-foot{padding:14px;border-top:1px solid rgba(255,255,255,.1)}
+.sb-user{color:rgba(255,255,255,.8);font-size:11px;font-weight:600;margin-bottom:8px}
+.btn-logout{width:100%;padding:7px;border-radius:7px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);font-size:12px;font-weight:700;transition:all .2s}
+.btn-logout:hover{background:rgba(255,255,255,.15);color:#fff}
+
+/* ══ MOBILE HEADER ══ */
+.mob-head{display:none;position:fixed;top:0;left:0;right:0;z-index:99;background:var(--g2);color:#fff;padding:11px 14px;align-items:center;justify-content:space-between;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.hamburger{background:none;border:none;color:#fff;font-size:22px}
+
+/* ══ MAIN CONTENT ══ */
+.main-cnt{margin-left:var(--sw);flex:1;min-height:100vh;padding:22px;background:var(--bg)}
+
+/* ══ PAGE PARTS ══ */
+.pg-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
+.pg-title{font-size:22px;font-weight:900;color:var(--text)}
+.pg-sub{font-size:12px;color:var(--light);margin-top:2px}
+.pg-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ══ CARDS ══ */
+.card{background:#fff;border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:18px}
+.card h3{font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:#fff;border-radius:var(--r);padding:16px;box-shadow:var(--sh);border-left:4px solid;transition:transform .2s}
+.stat:hover{transform:translateY(-3px)}
+.stat-icon{font-size:24px;margin-bottom:8px}
+.stat-val{font-size:24px;font-weight:900}
+.stat-lbl{font-size:11px;color:var(--light);margin-top:2px}
+
+/* ══ CLASS GRID ══ */
+.cls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.cls-card{background:#fff;border-radius:var(--r);padding:18px 10px;text-align:center;cursor:pointer;border:2px solid var(--border);box-shadow:var(--sh);transition:all .25s}
+.cls-card:hover{border-color:var(--g2);transform:translateY(-4px);box-shadow:var(--shh)}
+.cls-num{font-size:34px;font-weight:900;color:var(--g2)}
+.cls-lbl{font-size:11px;color:var(--light)}
+.cls-cnt{font-size:12px;font-weight:700;color:var(--g3);margin-top:4px}
+
+/* ══ TABLE ══ */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:var(--g2);color:#fff}
+thead th{padding:9px 11px;text-align:left;font-weight:700;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:hover{background:var(--gp)}
+tbody td{padding:9px 11px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700}
+.b-green{background:var(--gp);color:var(--g2)}
+.b-red{background:#fdecea;color:var(--red)}
+.b-gold{background:#fef5e4;color:var(--gold2)}
+.b-blue{background:#eaf4fb;color:var(--blue)}
+.b-grey{background:#f2f2f2;color:#555}
+
+/* ══ BUTTONS ══ */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--rs);border:none;font-size:13px;font-weight:700;transition:all .2s;cursor:pointer}
+.btn-g{background:var(--g2);color:#fff}.btn-g:hover{background:var(--g1)}
+.btn-gold{background:var(--gold2);color:#fff}.btn-gold:hover{background:#e08e0b}
+.btn-red{background:var(--red);color:#fff}.btn-red:hover{background:#a93226}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#2471a3}
+.btn-grey{background:#6c757d;color:#fff}.btn-grey:hover{background:#5a6268}
+.btn-out{background:transparent;color:var(--g2);border:2px solid var(--g2)}.btn-out:hover{background:var(--gp)}
+.btn-sm{padding:5px 10px;font-size:11px}
+.bx{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none}
+.bx-g{background:#e8f5ee;color:var(--g2)}.bx-r{background:#fdecea;color:var(--red)}.bx-b{background:#eaf4fb;color:var(--blue)}.bx-gold{background:#fef5e4;color:var(--gold2)}
+
+/* ══ FILTER BAR ══ */
+.fbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.srch{flex:1;min-width:180px;padding:8px 13px;border:2px solid var(--border);border-radius:var(--rs);font-size:13px;outline:none;transition:border-color .2s}
+.srch:focus{border-color:var(--g2)}
+.fsel{padding:8px 11px;border:2px solid var(--border);border-radius:var(--rs);font-size:13px;outline:none;background:#fff;transition:border-color .2s}
+.fsel:focus{border-color:var(--g2)}
+
+/* ══ TERM TABS ══ */
+.term-tabs{display:flex;gap:4px;background:#f0f0f0;border-radius:9px;padding:4px;margin-bottom:14px}
+.t-tab{flex:1;padding:8px 6px;border-radius:7px;border:none;font-size:12px;font-weight:700;transition:all .2s;background:transparent;color:#666}
+.t-tab.active{background:var(--g2);color:#fff}
+
+/* ══ MARKS ENTRY ══ */
+.marks-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border)}
+.marks-row:hover{background:var(--gp)}
+.marks-subj{flex:1;font-size:13px;font-weight:600;font-family:var(--urdu);direction:rtl}
+.marks-max{font-size:11px;color:var(--light);white-space:nowrap;min-width:50px;text-align:right}
+.marks-inp{
+  width:74px;padding:6px 8px;border:2px solid var(--border);
+  border-radius:7px;text-align:center;font-weight:700;font-size:14px;outline:none;transition:border-color .2s
+}
+.marks-inp:focus{border-color:var(--g2)}
+.marks-inp.ok{border-color:var(--g3)}
+.marks-inp.bad{border-color:var(--red);background:#fff8f8}
+.abs-label{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--red);font-weight:600;white-space:nowrap;cursor:pointer}
+
+/* ══ RESULT SUMMARY ══ */
+.res-sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px;border-top:2px solid var(--gp)}
+.rs-box{text-align:center;padding:10px 6px;background:var(--gp);border-radius:9px}
+.rs-val{font-size:20px;font-weight:900}
+.rs-lbl{font-size:10px;color:var(--light);margin-top:2px}
+
+/* ══ MODAL ══ */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:14px}
+.modal-box{background:#fff;border-radius:18px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:var(--shh);animation:fadeUp .3s ease}
+.modal-hd{padding:16px 18px 12px;font-size:16px;font-weight:800;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:none;border:none;font-size:20px;color:#999;cursor:pointer;line-height:1}
+.modal-body{padding:18px}
+.modal-foot{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;bottom:22px;right:22px;z-index:9999;background:var(--g1);color:#fff;padding:11px 18px;border-radius:9px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.3);animation:fadeUp .3s ease;max-width:320px}
+.toast.err{background:var(--red)}
+.toast.warn{background:var(--gold2)}
+
+/* ══ PROGRESS ══ */
+.pbar{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pfill{height:100%;border-radius:3px;background:var(--g3);transition:width .4s}
+
+/* ══ GRADE CHIP ══ */
+.gchip{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-weight:900;font-size:13px;color:#fff}
+.gA\+{background:#1a6b3c}.gA{background:#27ae60}.gB{background:#2980b9}.gC{background:#8e44ad}.gD{background:#f39c12}.gE{background:#e67e22}.gF{background:#c0392b}
+
+/* ══ UPLOAD ZONE ══ */
+.upload-zone{border:2px dashed var(--border);border-radius:var(--r);padding:28px;text-align:center;cursor:pointer;transition:all .2s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--g2);background:var(--gp)}
+.upload-zone .uz-icon{font-size:36px;margin-bottom:8px}
+.upload-zone .uz-txt{font-size:14px;font-weight:600;color:var(--sub)}
+.upload-zone .uz-sub{font-size:11px;color:var(--light);margin-top:4px}
+
+/* ══ ATTENDANCE ══ */
+.att-cell{width:32px;height:32px;border-radius:6px;border:2px solid var(--border);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:700;transition:all .15s;background:#fff}
+.att-cell.P{background:#e8f5ee;border-color:var(--g3);color:var(--g2)}
+.att-cell.A{background:#fdecea;border-color:var(--red);color:var(--red)}
+.att-cell.L{background:#fef5e4;border-color:var(--gold2);color:var(--gold2)}
+
+/* ══ PRINT / RESULT CARD ══ */
+#printOverlay{position:fixed;inset:0;background:#e8e8e8;z-index:2000;overflow-y:auto;display:flex;flex-direction:column}
+.print-bar{display:flex;gap:10px;padding:12px 16px;background:#0a3d22;position:sticky;top:0;z-index:10;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.print-bar span{color:rgba(255,255,255,.7);font-size:13px;flex:1}
+
+/* A4 RESULT CARD - PECTAA Exact Style */
+.rc-page{
+  width:210mm;margin:10px auto;background:#fff;padding:0;
+  font-family:"Noto Nastaliq Urdu","DM Sans",Arial,sans-serif;
+  font-size:10px;color:#000;direction:rtl;
+  position:relative;box-shadow:0 4px 24px rgba(0,0,0,.18);
+  page-break-after:always;page-break-inside:avoid;
+  display:flex;flex-direction:column;min-height:295mm;
+}
+.rc-page::after{
+  content:"SBA";position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%) rotate(-35deg);
+  font-size:170px;font-weight:900;letter-spacing:8px;
+  color:rgba(26,107,60,.04);pointer-events:none;z-index:0;
+  font-family:"DM Sans",sans-serif;
+}
+/* Top coloured strip */
+.rc-topstrip{
+  height:16px;flex-shrink:0;
+  background:linear-gradient(90deg,#1a6b3c 0%,#39b54a 60%,#8dc63f 100%);
+}
+/* Inner wrapper with padding */
+.rc-inner{padding:7mm 10mm 5mm;flex:1;position:relative;z-index:1;display:flex;flex-direction:column}
+/* Header */
+.rc-hdr{text-align:center;border-bottom:3px solid #1a6b3c;padding-bottom:7px;margin-bottom:7px}
+.rc-hdr-title{
+  font-family:"Noto Nastaliq Urdu",serif;font-size:22px;
+  font-weight:700;color:#1a6b3c;direction:rtl;line-height:1.6;
+}
+.rc-hdr-year{font-family:"Noto Nastaliq Urdu",serif;font-size:12px;color:#333;direction:rtl;margin-top:2px}
+.rc-hdr-pectaa{font-size:8.5px;color:#777;margin-top:2px;direction:ltr}
+/* Info table — underline style */
+.rc-info-tbl{width:100%;border-collapse:collapse;margin-bottom:7px;font-size:10.5px;direction:rtl}
+.rc-info-tbl td{padding:4px 5px;border-bottom:1px solid #aaa;vertical-align:bottom}
+.rc-info-tbl .lbl{font-family:"Noto Nastaliq Urdu",serif;font-weight:700;color:#111;white-space:nowrap;width:13%}
+.rc-info-tbl .val{color:#111;min-width:80px}
+.rc-info-tbl .val-name{font-weight:800;color:#1a6b3c;font-size:12px}
+/* Marks table */
+.rc-tbl{width:100%;border-collapse:collapse;margin-bottom:7px;direction:rtl;table-layout:fixed;font-size:9px}
+.rc-tbl th,.rc-tbl td{border:1px solid #333;padding:3px 2px;text-align:center;vertical-align:middle}
+.rc-tbl .rh1{background:#1a6b3c;color:#fff;font-family:"Noto Nastaliq Urdu",serif;font-weight:700;font-size:9.5px;direction:rtl}
+.rc-tbl .rh2{background:#c8e6c9;color:#1a6b3c;font-family:"Noto Nastaliq Urdu",serif;font-weight:700;font-size:8.5px;direction:rtl}
+.rc-tbl .subj{text-align:right;padding:3px 5px;font-family:"Noto Nastaliq Urdu",serif;direction:rtl;white-space:normal;word-break:break-word;font-size:9px;font-weight:600}
+.rc-tbl .sno{font-weight:900;font-size:9px;color:#1a6b3c;background:#f0f7f0}
+.rc-tbl .rA{background:#fff}
+.rc-tbl .rB{background:#f5fbf5}
+.rc-tbl .r-tot{background:#1a6b3c;color:#fff;font-weight:700}
+.rc-tbl .r-tot .subj{background:#1a6b3c;color:#fff;font-family:"Noto Nastaliq Urdu",serif}
+/* Bottom boxes */
+.rc-bot{display:flex;gap:7px;margin-bottom:7px;direction:rtl}
+.rc-grd-box{flex:0 0 112px;border:2px solid #1a6b3c;border-radius:6px;padding:6px}
+.rc-grd-ttl{font-family:"Noto Nastaliq Urdu",serif;direction:rtl;font-weight:700;color:#1a6b3c;margin-bottom:4px;font-size:10px;text-align:right}
+.rc-grd-row{display:flex;justify-content:space-between;align-items:center;padding:2px 3px;border-radius:3px;font-size:9px;direction:rtl;margin-bottom:1px}
+.rc-grd-row .glabel{font-family:"Noto Nastaliq Urdu",serif;font-size:9px}
+.rc-grd-row.hi{background:#1a6b3c;color:#fff}
+.rc-grd-row .gval{font-weight:900;font-size:10px;min-width:22px;text-align:left}
+.rc-akh{flex:1.4;border:2px solid #1a6b3c;border-radius:6px;padding:6px;font-family:"Noto Nastaliq Urdu",serif;direction:rtl;font-size:8.5px;color:#333;line-height:1.8;text-align:right}
+.rc-rmk{flex:1.8;border:2px solid #1a6b3c;border-radius:6px;padding:6px}
+.rc-rmk-ttl{font-family:"Noto Nastaliq Urdu",serif;direction:rtl;font-weight:700;color:#1a6b3c;margin-bottom:6px;font-size:10px;text-align:right}
+.rc-rmk-line{border-bottom:1px solid #bbb;min-height:16px;margin-bottom:5px;padding:1px 3px;font-family:"Noto Nastaliq Urdu",serif;direction:rtl;font-size:8.5px;line-height:1.7;text-align:right}
+/* Signatures */
+.rc-sigs{display:flex;justify-content:space-between;margin-top:12px;padding-top:7px;border-top:1px solid #999;direction:rtl}
+.rc-sig{text-align:center}
+.rc-sig-line{border-top:1px solid #222;width:110px;margin:0 auto 4px}
+.rc-sig-lbl{font-family:"Noto Nastaliq Urdu",serif;direction:rtl;font-size:9px;color:#333}
+/* Yellow footer */
+.rc-foot{background:#f1c40f;color:#fff;text-align:center;padding:5px 8px;border-radius:4px;margin-top:8px;font-family:"Noto Nastaliq Urdu",serif;direction:rtl;font-size:9.5px;font-weight:700;line-height:1.5}
+/* Bottom green strip */
+.rc-botstrip{height:14px;background:linear-gradient(90deg,#1a6b3c,#39b54a,#8dc63f);margin-top:auto;flex-shrink:0}
+
+/* GAZETTE — keep on one page */
+.gazette-page{
+  width:297mm;margin:12px auto;background:#fff;
+  padding:8mm 10mm;font-size:8.5px;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
+  page-break-after:always;page-break-inside:avoid;
+}
+.gazette-page table{width:100%;border-collapse:collapse;font-size:7.5px}
+.gazette-page th{background:var(--g2);color:#fff;padding:4px 3px;border:1px solid #555;text-align:center;font-size:7px;white-space:nowrap}
+.gazette-page td{padding:3px;border:1px solid #ccc;text-align:center;vertical-align:middle}
+.gazette-page .subj-h{font-family:var(--urdu);direction:rtl;font-size:7px;writing-mode:vertical-rl;text-orientation:mixed;max-height:60px}
+.gazette-page .pos1{background:#fffde7}.gazette-page .pos2{background:#f5f5f5}.gazette-page .pos3{background:#fff3e0}
+
+/* ATTENDANCE PRINT */
+.att-page{width:297mm;margin:12px auto;background:#fff;padding:8mm;font-size:9px;box-shadow:0 4px 20px rgba(0,0,0,.15);page-break-after:always}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .mob-head{display:flex}
+  .main-cnt{margin-left:0;padding:66px 12px 16px}
+  .stat-grid{grid-template-columns:repeat(2,1fr)}
+  .res-sum{grid-template-columns:repeat(2,1fr)}
+  .rc-bottom{flex-direction:column}
+  .rc-page{width:100%;padding:8mm}
+  .gazette-page{width:100%;overflow-x:auto}
+}
+
+/* ══ PRINT ══ */
+@media print{
+  body>*{display:none!important}
+  #printOverlay{display:flex!important;flex-direction:column;background:none!important;position:fixed!important;inset:0!important;z-index:9999!important}
+  .print-bar{display:none!important}
+  #printContent{display:block!important;background:white}
+  .rc-page,.gazette-page,.att-page{
+    box-shadow:none!important;
+    page-break-after:always;
+    page-break-inside:avoid;
+  }
+  @page{size:A4 portrait;margin:0}
+  .gazette-page{page-break-after:always}
+  @page gazette{size:A4 landscape;margin:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="loginScreen" class="screen active">
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-head">
+      <div style="font-size:13px;color:#888;margin-bottom:4px">Govt. High School Chak No. 10 NB, Bhalwal</div>
+      <div class="login-title" style="font-size:15px;white-space:nowrap">SBA Result Management System</div>
+      <div class="login-by">by MALIK NAVEED</div>
+      <span class="login-badge">PECTAA | EMIS: 38410051 | Sargodha</span>
+    </div>
+    <div class="role-tabs">
+      <button class="role-tab active" onclick="selRole('admin',this)">🛡 Admin</button>
+      <button class="role-tab" onclick="selRole('teacher',this)">👩‍🏫 Teacher</button>
+    </div>
+    <div class="fgrp">
+      <label>Username</label>
+      <input class="finp" id="lu" placeholder="admin / teacher" autocomplete="off"/>
+    </div>
+    <div class="fgrp">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input class="finp" type="password" id="lp" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()"/>
+        <button class="pw-eye" onclick="togglePW()">👁</button>
+      </div>
+    </div>
+    <div id="lerr" class="login-err hidden"></div>
+    <button class="btn-login" onclick="doLogin()">Login →</button>
+    
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ APP ═══════════════ -->
+<div id="appScreen" class="screen hidden">
+  <nav id="sidebar" class="sidebar">
+    <div class="sb-head">
+      <div class="sb-icon">🏫</div>
+      <div>
+        <div class="sb-title">SBA Result Management</div>
+        <div class="sb-sub">MALIK NAVEED | 0333-9815632</div>
+      </div>
+    </div>
+    <ul class="sb-nav" id="sbNav"></ul>
+    <div class="sb-foot">
+      <div class="sb-user" id="sbUser"></div>
+      <button class="btn-logout" onclick="doLogout()">↩ Logout</button>
+    </div>
+  </nav>
+
+  <div class="mob-head">
+    <button class="hamburger" onclick="toggleSB()">☰</button>
+    <span style="font-weight:700;font-size:13px">SBA Result Management System</span>
+    <button onclick="doLogout()" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer">↩</button>
+  </div>
+
+  <main class="main-cnt" id="mainCnt"></main>
+</div>
+
+<!-- ═══════════════ PRINT OVERLAY ═══════════════ -->
+<div id="printOverlay" class="hidden">
+  <div class="print-bar no-print">
+    <span id="printTitle">Print Preview</span>
+    <button class="btn btn-gold" onclick="doPrint()">🖨️ Print / Save PDF</button>
+    <button class="btn btn-grey" onclick="closePrint()">✕ Close</button>
+  </div>
+  <div id="printContent"></div>
+</div>
+
+<!-- ═══════════════ MODAL ═══════════════ -->
+<div id="modal" class="modal-ov hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div class="modal-hd">
+      <span id="mTitle"></span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="mBody"></div>
+    <div class="modal-foot" id="mFoot"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ TOAST ═══════════════ -->
+<div id="toast" class="toast hidden"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   SBA RESULT MANAGEMENT SYSTEM — FULL JS
+   by MALIK NAVEED | GHS Chak 10 NB Bhalwal
+═══════════════════════════════════════════════ */
+
+// ── DATA ─────────────────────────────────────
+
+const ALL_STUDENTS=[
+  {e:"315",n:"MUHAMMAD AYAN YOUSAF",f:"MUHAMMAD YOUSAF",d:"15-FEB-15",b:"3840189973233",c:1},
+  {e:"434",n:"MUHAMMAD BALAG",f:"SAIF ULLAH",d:"01-MAY-18",b:"3840179264057",c:1},
+  {e:"448",n:"MUHAMMAD HADI",f:"LIAQAT ALI",d:"19-FEB-18",b:"3840127340391",c:1},
+  {e:"471",n:"MUHAMMAD IBRAHIM",f:"MUHAMMAD SLEEM",d:"12-SEP-19",b:"3840183612737",c:1},
+  {e:"478",n:"MUHAMMAD HASSAN",f:"FAROOQ AHMED",d:"06-NOV-18",b:"3840108532683",c:1},
+  {e:"498",n:"MUHAMMAD HUSAIN",f:"KALEEM ULLAH",d:"02-OCT-17",b:"3840115214401",c:1},
+  {e:"507",n:"MUHAMMAD USMAN",f:"MUDASSAR ABBAS",d:"19-AUG-19",b:"3840127055173",c:1},
+  {e:"547",n:"MUHAMMAD ABDULLAH",f:"MUHAMMAD FAROOQ",d:"22-NOV-18",b:"3840165246645",c:1},
+  {e:"548",n:"ABDUL QADEER KHAN",f:"NOOR KHAN",d:"04-NOV-17",b:"3840182224099",c:1},
+  {e:"549",n:"ZULQAR NAIN",f:"FYAZ AHMAD",d:"27-NOV-17",b:"3840151127655",c:1},
+  {e:"551",n:"MUHAMMAD HUSNAIN",f:"ZAFAR IQBAL",d:"25-AUG-19",b:"3840190492317",c:1},
+  {e:"557",n:"NABEEL SARFRAZ",f:"SARFRAZ ASHRAF",d:"16-FEB-19",b:"3840167749459",c:1},
+  {e:"559",n:"ABDUR REHMAN",f:"MUHAMMAD ABBAS",d:"19-MAY-18",b:"3840162877955",c:1},
+  {e:"565",n:"MUHAMMAD WASIF ALI",f:"MUHAMMAD AKRAM ASIM",d:"16-SEP-19",b:"3840194386151",c:1},
+  {e:"567",n:"MUHAMMAD HASEEB",f:"AMJAD HUSSAIN",d:"19-JUL-20",b:"3840192484565",c:1},
+  {e:"581",n:"FARID ALI",f:"MUHAMMAD SHABIR",d:"28-MAR-17",b:"",c:1},
+  {e:"588",n:"SHEHRYAR",f:"ADIL SHAHZAD",d:"01-MAY-16",b:"3840180646839",c:1},
+  {e:"603",n:"WASEEF UR REHMAN",f:"AMIR HUSSAIN",d:"11-MAY-19",b:"3840174064281",c:1},
+  {e:"605",n:"MUHAMMAD ABAS IRFAN",f:"IRFAN MAHMOOD SABRI",d:"30-JUL-18",b:"3840351378539",c:1},
+  {e:"647",n:"ADAAB ALI",f:"ZEESHAN ALI",d:"01-MAY-18",b:"3840103523857",c:1},
+  {e:"684",n:"MUHAMMAD ARSAM",f:"KHALID JAVED",d:"19-NOV-18",b:"",c:1},
+  {e:"701",n:"MUHAMMAD SAMIULLAH",f:"MUHAMMAD IBRAR HUSSAIN",d:"15-DEC-20",b:"3840137316573",c:1},
+  {e:"722",n:"MUHAMMAD ADIL",f:"BILAL HASSAN",d:"18-SEP-17",b:"3840132715587",c:1},
+  {e:"730",n:"MUHAMMAD ZEESHAN",f:"RIZWAN JAVED",d:"26-JUN-20",b:"3840123450883",c:1},
+  {e:"2593",n:"MUHAMMAD FAHAD",f:"MUHAMMAD IRFAN",d:"01-JAN-21",b:"3840151802627",c:1},
+  {e:"399",n:"TAUHEED RAZA",f:"QAISAR MAHMOOD",d:"04-DEC-16",b:"3840121709007",c:2},
+  {e:"440",n:"MUHAMMAD ALI",f:"ZAHOOR AHMAD",d:"26-MAR-17",b:"3840143533559",c:2},
+  {e:"444",n:"RAJA ADEEN ALI",f:"HAROON IQBAL",d:"04-DEC-17",b:"3840190567157",c:2},
+  {e:"459",n:"MUHAMMAD ROHAN KHAN",f:"BAHADAR KHAN",d:"01-JAN-17",b:"3840194515635",c:2},
+  {e:"470",n:"MUHAMMAD ABUBAKAR BILAL",f:"BILAL AZIZ",d:"03-JUL-18",b:"3840156068911",c:2},
+  {e:"474",n:"ABDUR REHMAN",f:"MUHAMMAD BILAL",d:"12-DEC-18",b:"3840117181065",c:2},
+  {e:"476",n:"RAJJAB ALI",f:"AMIR SHAHZAD",d:"17-MAR-19",b:"3840138031657",c:2},
+  {e:"482",n:"MUHAMMAD TALHA",f:"SHAFAQAT ALI",d:"12-APR-18",b:"3840133886755",c:2},
+  {e:"485",n:"HUSNAIN ALI",f:"KHAWAR HUSAIN",d:"05-APR-18",b:"3840198924273",c:2},
+  {e:"493",n:"ZESHAN ARIF",f:"MUHAMMAD ARIF",d:"10-JAN-19",b:"3840151007931",c:2},
+  {e:"497",n:"MUDASAR SULTAN",f:"ZULFQAR AHMAD",d:"23-JUN-18",b:"3840196804283",c:2},
+  {e:"509",n:"RAJA ZAIN ALI",f:"HAROON IQBAL",d:"05-JUL-19",b:"3840190653607",c:2},
+  {e:"514",n:"MUHAMMAD LUQMAN",f:"ABDUL RASHEED",d:"21-MAR-19",b:"3230409828187",c:2},
+  {e:"516",n:"MUHAMMAD ZARYAB ALI",f:"BABAR ALTAF",d:"16-JAN-19",b:"3840184374273",c:2},
+  {e:"518",n:"MUHAMMAD ABDUL HADI",f:"MUHAMMAD IMRAN",d:"04-SEP-19",b:"3460394659975",c:2},
+  {e:"519",n:"HAMZA SHAHZAD",f:"ANSAR MEHMOOD",d:"11-JUL-18",b:"3840129018515",c:2},
+  {e:"525",n:"ABDUL REHMAN",f:"ALI ASGHAR",d:"06-NOV-18",b:"3840167327465",c:2},
+  {e:"531",n:"MUHAMMAD MUSTAFA",f:"ZAFAR IQBAL",d:"06-APR-19",b:"3840382852491",c:2},
+  {e:"533",n:"MUHAMMAD NOMAN",f:"ALLAH BAKHSH",d:"30-JAN-16",b:"",c:2},
+  {e:"534",n:"SHER ALI",f:"MUHAMMAD MUMTAZ",d:"15-OCT-17",b:"3840157606483",c:2},
+  {e:"550",n:"MUHAMMAD IBRAHIM",f:"AHSAN ULLAH",d:"11-MAY-18",b:"3840141818479",c:2},
+  {e:"552",n:"AMEER HADI",f:"UMAR ILYAS",d:"08-MAY-19",b:"3840180980991",c:2},
+  {e:"560",n:"MUHAMMAD RAEES",f:"MUHAMMAD ZAMAN",d:"05-SEP-16",b:"3840103207477",c:2},
+  {e:"586",n:"MUHAMMAD HASSAN ALI",f:"YASIR ABBAS",d:"26-APR-16",b:"3840117148077",c:2},
+  {e:"660",n:"UZAIR ASIF",f:"ASIF JAVED",d:"13-JUL-17",b:"3840109429787",c:2},
+  {e:"682",n:"RAMZAN ALI",f:"ALLAH BAKSH",d:"01-JAN-18",b:"",c:2},
+  {e:"683",n:"ALI HASSAN",f:"NAEEM ULLAH",d:"01-OCT-17",b:"",c:2},
+  {e:"688",n:"MUHAMMAD RYAN",f:"MUHAMMAD ADNAN",d:"21-SEP-13",b:"3840321527099",c:2},
+  {e:"689",n:"ABDUL RAFAY",f:"SHAHID MEHMOOD",d:"13-SEP-15",b:"3740552831185",c:2},
+  {e:"704",n:"MUHAMMAD AYAN",f:"FAISAL AYUB",d:"02-FEB-18",b:"3840186131967",c:2},
+  {e:"705",n:"MUHAMMAD TAQI",f:"ADNAN AHMAD",d:"23-JUL-17",b:"3840138212793",c:2},
+  {e:"2941",n:"DAOOD SHAHID",f:"SHAHID JAMES",d:"09-MAY-14",b:"3840142295615",c:2},
+  {e:"323",n:"HASSAN ALI",f:"RASHID ALI",d:"10-APR-15",b:"3840186887695",c:3},
+  {e:"381",n:"ABDUR REHMAN",f:"MUHAMMAD IQBAL",d:"22-JUN-16",b:"3840185829451",c:3},
+  {e:"398",n:"TAYYAB ALI",f:"GHULAM HUSSAIN",d:"26-JUN-18",b:"3840153583351",c:3},
+  {e:"403",n:"ATIF JAVED",f:"JAVED ASHRAF",d:"14-MAR-18",b:"3840103543549",c:3},
+  {e:"421",n:"HAIDER ALI",f:"ASIF IQBAL",d:"30-JUL-18",b:"3840152292305",c:3},
+  {e:"442",n:"ABDUR RAHEEM",f:"FIAZ AHMAD",d:"29-AUG-18",b:"3610473739029",c:3},
+  {e:"443",n:"MUHAMMAD ALI ATTA",f:"MUHAMMAD ILYAS",d:"13-MAR-17",b:"3840166197607",c:3},
+  {e:"445",n:"MUHAMMAD SUBHAN",f:"IJAZ AHMAD",d:"01-JUL-18",b:"3840129422359",c:3},
+  {e:"446",n:"MUHAMMAD IBRAHIM",f:"USMAN ZAFAR",d:"07-FEB-16",b:"3840169855365",c:3},
+  {e:"505",n:"HAMAD ALI",f:"ISHFAQ AHMAD",d:"02-JUN-16",b:"3840108701453",c:3},
+  {e:"513",n:"MUHAMMAD FAIZAN",f:"ABDUL RASHEED",d:"01-JAN-17",b:"3230409829137",c:3},
+  {e:"520",n:"ALI SHANAWAR",f:"ANSAR MEHMOOD",d:"01-JUN-17",b:"3840115464455",c:3},
+  {e:"546",n:"MUHAMMAD IBRAHEEM",f:"ALI HUSSAN",d:"08-JAN-16",b:"",c:3},
+  {e:"574",n:"ABDUL RAFY",f:"QAISAR HUSSAIN",d:"27-JAN-16",b:"3840161055659",c:3},
+  {e:"582",n:"MUHAMMAD AHMAD",f:"TOQEER AHMAD",d:"15-FEB-17",b:"3840366281139",c:3},
+  {e:"583",n:"MUHAMMAD ANEES",f:"FAISAL SHEHZAD",d:"03-APR-15",b:"3840179159557",c:3},
+  {e:"621",n:"SHAZIM ALI",f:"ASIF MEHMOOD",d:"07-DEC-15",b:"3840182974981",c:3},
+  {e:"669",n:"DANISH ALI",f:"SANA ULLAH",d:"08-JUL-15",b:"3840607088777",c:3},
+  {e:"687",n:"ARSALAN IRSHAD",f:"IRSHAD",d:"20-APR-13",b:"",c:3},
+  {e:"713",n:"MUHAMMAD SHAYAAN ALI",f:"RASHID ALI",d:"01-JUL-18",b:"3840189197491",c:3},
+  {e:"729",n:"ALI HAIDER",f:"RIZWAN JAVED",d:"17-MAR-15",b:"3840127007363",c:3},
+  {e:"177",n:"MUHAMMAD HAROON",f:"MAZHAR HUSSAIN",d:"05-FEB-15",b:"3840162401137",c:4},
+  {e:"278",n:"ANAS ALI",f:"GHULAM HUSSAIN",d:"26-SEP-16",b:"3840154438351",c:4},
+  {e:"335",n:"HASEEB ULLAH",f:"MUHAMMAD IRFAN",d:"08-AUG-16",b:"3840157691725",c:4},
+  {e:"340",n:"MUHAMMAD USMAN",f:"MUHAMMAD WARIS",d:"02-SEP-16",b:"3420146411207",c:4},
+  {e:"390",n:"MUHAMMAD FEROZ GULL",f:"ALI HASSAN",d:"15-DEC-15",b:"3840150951679",c:4},
+  {e:"393",n:"MUHAMMAD MUSA",f:"MUHAMMAD ZAFAR",d:"10-JUL-14",b:"3840328567229",c:4},
+  {e:"396",n:"MUHAMMAD ARSLAN AMEER",f:"AHMAD HASSAN",d:"10-OCT-17",b:"3840158878919",c:4},
+  {e:"401",n:"MUHAMMAD AMEER",f:"ZAKA ULLAH",d:"01-JAN-16",b:"3840150547107",c:4},
+  {e:"402",n:"JUNAID KHAN",f:"NOOR KHAN",d:"05-NOV-15",b:"3840163478231",c:4},
+  {e:"404",n:"ABDUR RAHEEM",f:"AHMAD GHORI",d:"20-JAN-15",b:"3840101091449",c:4},
+  {e:"417",n:"MUHAMMAD ABDUR RAHEEM",f:"MUHAMMAD IMRAN",d:"28-AUG-17",b:"3460394537725",c:4},
+  {e:"522",n:"BILAWAL HASHIM",f:"ALI AHSAN",d:"18-JAN-14",b:"",c:4},
+  {e:"577",n:"MUHAMMAD AZAN",f:"MUHAMMAD SHABIR",d:"21-JAN-15",b:"3840177568159",c:4},
+  {e:"601",n:"MUHAMMAD IBRAHIM",f:"ALI HASSAN",d:"14-MAY-14",b:"3840150961179",c:4},
+  {e:"615",n:"MUHAMMAD SIYAM SABRI",f:"IRFAN MAHMOOD SABRI",d:"09-JUN-16",b:"3840352422589",c:4},
+  {e:"625",n:"M AHMAD",f:"ZUBAIR ASLAM",d:"22-SEP-14",b:"3840197683077",c:4},
+  {e:"639",n:"UMER FAROOQ",f:"ABID HUSSAIN",d:"05-FEB-16",b:"3840106183621",c:4},
+  {e:"697",n:"M UMER HUSSAIN",f:"BABER ALI",d:"26-SEP-17",b:"3840174274939",c:4},
+  {e:"700",n:"TAYYAB HASSAN",f:"NAHEED AHMAD",d:"27-JAN-14",b:"3840165510357",c:4},
+  {e:"174",n:"MUAMMAD ANAS",f:"AZHAR HUSSAIN",d:"18-APR-14",b:"3840144509271",c:5},
+  {e:"185",n:"MUHAMMAD ABDULLAH",f:"NAZIM GULL",d:"01-APR-15",b:"3840140016971",c:5},
+  {e:"226",n:"MUHAMMAD REHAN",f:"MUHAMMAD RIAZ",d:"22-NOV-14",b:"3840145995813",c:5},
+  {e:"233",n:"SJAWAL SHER",f:"AKBAR ABBAS",d:"14-OCT-14",b:"3840183244745",c:5},
+  {e:"254",n:"BILAL ALI",f:"SAFDAR ALI",d:"01-OCT-13",b:"3840199515587",c:5},
+  {e:"255",n:"MUHAMMAD HUSSAIN ALI",f:"YASIR ABBAS",d:"08-AUG-14",b:"3840117233577",c:5},
+  {e:"261",n:"SHAH ZAIB ALI",f:"ABDUL MAJEED",d:"02-JAN-15",b:"3840105215143",c:5},
+  {e:"279",n:"HAZEEM AHMAD",f:"TALAT MASOOD",d:"21-MAY-16",b:"6110161841287",c:5},
+  {e:"299",n:"MUHAMMAD FAIZAN",f:"TASWAR ABBS",d:"22-DEC-15",b:"3840136949909",c:5},
+  {e:"310",n:"AHMAD RAZA",f:"MUHAMMAD FAROOQ",d:"23-OCT-15",b:"3840128794923",c:5},
+  {e:"318",n:"KAMRAN SHEHZAD",f:"SHEHZAD AHMAD",d:"14-SEP-15",b:"3840139540905",c:5},
+  {e:"337",n:"MUHAMMAD ALYAN",f:"ZABI ULLAH",d:"12-SEP-16",b:"3840115960823",c:5},
+  {e:"338",n:"ALI HAMZA",f:"UMER ILYAS",d:"14-MAY-16",b:"3840180896941",c:5},
+  {e:"388",n:"QANDEEL HAIDER",f:"AZMAT ULLAH",d:"22-OCT-12",b:"3840171049341",c:5},
+  {e:"413",n:"MUHAMMAD FAIZAN",f:"AZHAR HUSAIN",d:"15-MAY-13",b:"3440146997545",c:5},
+  {e:"414",n:"MUHAMMAD SHEZAN",f:"AZHAR HUSSAIN",d:"26-FEB-15",b:"3440147946595",c:5},
+  {e:"510",n:"MUHAMMAD ABDULLAH",f:"LIAQAT ALI",d:"29-JUN-15",b:"3840194951049",c:5},
+  {e:"524",n:"ALI ANAS",f:"ALI ASGHAR",d:"06-SEP-15",b:"3840166473415",c:5},
+  {e:"679",n:"MUHAMMAD AHAD",f:"AHMAD HASSAN BHATTI",d:"12-SEP-15",b:"",c:5},
+  {e:"686",n:"FAIZAN ASIF",f:"MUHAMMAD ASIF",d:"12-MAR-16",b:"3840179160871",c:5},
+  {e:"696",n:"MUHAMMAD ZABEEB BABAR",f:"BABAR ALI",d:"12-OCT-15",b:"3840156592121",c:5},
+  {e:"698",n:"HUSSAIN ALI",f:"BASHARAT SALEEM",d:"26-FEB-15",b:"3840117122349",c:5},
+  {e:"702",n:"FARHAN ALI",f:"FAISAL AYOOB",d:"01-JUL-15",b:"3840186141467",c:5},
+  {e:"56",n:"MAHEEB ALI",f:"HUSNAIN ALTAF",d:"20-JAN-12",b:"3840166131825",c:6},
+  {e:"86",n:"ALI HASSAN",f:"NAZAKAT ALI",d:"15-AUG-09",b:"3840188861325",c:6},
+  {e:"103",n:"CHAND ALI",f:"NASAR IQBAL",d:"28-AUG-12",b:"3840103424379",c:6},
+  {e:"108",n:"HAIDAR ALI",f:"MUHAMMAD TANVEER ALI",d:"15-JAN-14",b:"3840381109945",c:6},
+  {e:"117",n:"SHNAWAR ALI",f:"AMJAD ALI",d:"14-AUG-14",b:"3840122824425",c:6},
+  {e:"134",n:"SAMI ULLAH",f:"M IRFAN",d:"01-OCT-14",b:"3840176343733",c:6},
+  {e:"175",n:"MUHAMMAD SULEMAN",f:"AZHAR HUSSAIN",d:"18-APR-14",b:"3840125848713",c:6},
+  {e:"176",n:"MUHAMMAD ABUL HADI",f:"MUNWAR HUSSAIN",d:"13-MAY-14",b:"3840125048747",c:6},
+  {e:"179",n:"SAIF ULLAH",f:"SHEHZAD KHALID",d:"11-NOV-14",b:"3840140266779",c:6},
+  {e:"184",n:"MUHAMMAD JAWAD UL HASAN",f:"MUHAMMAD WARIS",d:"07-MAY-12",b:"3840117989335",c:6},
+  {e:"245",n:"HASSAN ALI",f:"RASHID HAMEED",d:"02-APR-15",b:"3840147645531",c:6},
+  {e:"249",n:"MUHAMMAD ADNAN",f:"MUHAMMAD ARIF",d:"01-FEB-13",b:"3420130716685",c:6},
+  {e:"250",n:"MUHAMMAD ALYAN",f:"BISHARAT ALI",d:"14-JUN-15",b:"3420196911611",c:6},
+  {e:"253",n:"MUSA ALI",f:"AHSANULLAH",d:"29-JUN-15",b:"3840182794675",c:6},
+  {e:"264",n:"MUHAMMAD ZESHAN",f:"ANSAR IQBAL",d:"13-MAR-13",b:"3840157221677",c:6},
+  {e:"297",n:"ZYAN ALI",f:"ALI RAZA",d:"29-APR-15",b:"3840121698679",c:6},
+  {e:"298",n:"MUHAMMAD ARYAN",f:"NAEEM ULLAH",d:"14-AUG-16",b:"3840109916543",c:6},
+  {e:"300",n:"MUHAMMAD SULEMAN",f:"MUHAMMAD SARFRAZ",d:"23-FEB-16",b:"3840146144629",c:6},
+  {e:"309",n:"MUZAMMAL HUSSAIN",f:"SABIR HUSSAIN",d:"02-JAN-17",b:"3840166195281",c:6},
+  {e:"329",n:"MUHAMMAD MUSA",f:"MUHAMMAD ALI",d:"13-JAN-16",b:"3840108213641",c:6},
+  {e:"330",n:"AZAN ALI",f:"MUHAMMAD ALI",d:"09-OCT-14",b:"3840108222191",c:6},
+  {e:"331",n:"MUHAMMAD ANS",f:"ALYAS AHMAD",d:"28-JAN-17",b:"3840144048779",c:6},
+  {e:"378",n:"MUHAMMAD HASHAAM ASIF",f:"ASIF JAVED",d:"01-JUN-15",b:"3840187820351",c:6},
+  {e:"483",n:"MUHAMMAD MUBASHAR",f:"MUDASAR HUSAIN",d:"01-MAR-13",b:"3840145113501",c:6},
+  {e:"500",n:"USAMA ALI",f:"KHURAM SHAHZAD",d:"22-NOV-12",b:"3840168013109",c:6},
+  {e:"578",n:"ALI HASSAN",f:"ALLAH DITTA",d:"07-JUL-12",b:"3840186367627",c:6},
+  {e:"611",n:"ABDULLAH ASGHER",f:"MUHAMMAD ASGHER",d:"03-JUL-13",b:"3840119549703",c:6},
+  {e:"612",n:"SHAHZAIB HASAN",f:"SHABBIR AHMAD",d:"28-OCT-13",b:"3840120975843",c:6},
+  {e:"616",n:"MUHAMMAD HAMMAD",f:"BABER ALI",d:"01-FEB-14",b:"3840157447121",c:6},
+  {e:"620",n:"NADIR ALI",f:"ASIF MEHMOOD",d:"19-JAN-13",b:"3840122440597",c:6},
+  {e:"626",n:"ALI AKBAR",f:"SDAQAT ALI",d:"02-FEB-13",b:"3840163145059",c:6},
+  {e:"634",n:"M DILAWER",f:"MUHAMMAD IJAZ",d:"11-SEP-13",b:"3840704067103",c:6},
+  {e:"690",n:"SAHIL ABBAS",f:"ZESHAN ALI",d:"19-SEP-13",b:"3840194477169",c:6},
+  {e:"691",n:"ALI ASAD",f:"ALI ASGHAR",d:"05-JAN-14",b:"3840184260923",c:6},
+  {e:"695",n:"ALI HASAN",f:"BABER ALI",d:"25-MAR-11",b:"3840157541171",c:6},
+  {e:"699",n:"MUHAMMAD REHAN",f:"ARSHAD SADEEQ",d:"05-MAR-13",b:"3840149802663",c:6},
+  {e:"91",n:"ALI HASSAN",f:"SAFDAR ALI",d:"11-DEC-10",b:"3840161456593",c:7},
+  {e:"107",n:"MUHAMMAD AZAN ASLAM",f:"MUHAMMAD ASLAM",d:"10-JUN-13",b:"3840183321489",c:7},
+  {e:"109",n:"MUHAMMAD ALYAN",f:"NAZAKAT ALI",d:"16-JUN-13",b:"3840127548843",c:7},
+  {e:"126",n:"EHSAN ULLAH",f:"RASHID ALI",d:"12-DEC-12",b:"3840125394951",c:7},
+  {e:"181",n:"SHEHBAZ HASSAN",f:"NASRULLAH KHAN",d:"04-OCT-14",b:"3840171606501",c:7},
+  {e:"224",n:"MUHAMMAD AHMED NADEEM",f:"NADEEM ASHRAF",d:"24-NOV-14",b:"3840150503025",c:7},
+  {e:"235",n:"RAFAQAT",f:"LIAQAT ALI",d:"03-NOV-12",b:"3840188834085",c:7},
+  {e:"251",n:"MUHAMMAH ZAIN AMEER",f:"BILAL HUSSAIN",d:"14-JAN-13",b:"3840163310557",c:7},
+  {e:"263",n:"ALI HAIDER",f:"LIAQAT ALI",d:"28-AUG-15",b:"3840127330891",c:7},
+  {e:"275",n:"MUHAMMAD ABDULLAH",f:"RIZWAN IJAZ",d:"04-JUN-15",b:"3840147796429",c:7},
+  {e:"280",n:"MUHAMMAD TALAH",f:"IBRAR HUSSAIN",d:"28-FEB-13",b:"3840186940053",c:7},
+  {e:"292",n:"AHMER NADEEM",f:"NADEEM INAYAT",d:"16-MAY-13",b:"3840129387187",c:7},
+  {e:"296",n:"MUSA HAIDER",f:"ALI RAZA",d:"21-JAN-14",b:"3840110293113",c:7},
+  {e:"380",n:"MUHAMMAD ABU BAKAR",f:"QAISER MEHMOOD",d:"25-AUG-13",b:"3840170000183",c:7},
+  {e:"450",n:"SAMI ULLAH",f:"ARSALAN JAVAID",d:"21-AUG-13",b:"3840131743045",c:7},
+  {e:"504",n:"MUHAMMAD MESAM TEMAR",f:"AMIR IJAZ",d:"15-OCT-08",b:"3840142882473",c:7},
+  {e:"512",n:"QALAB ABBAS",f:"ZEESHAN ALI",d:"14-SEP-12",b:"3840102574807",c:7},
+  {e:"538",n:"ALI AHMAD SABER",f:"ASGHAR ALI",d:"01-JAN-11",b:"3840131251853",c:7},
+  {e:"540",n:"NUMAN SHABEER",f:"MUHAMMAD SHABEER",d:"23-MAY-11",b:"3840196401617",c:7},
+  {e:"542",n:"REHMAN ALI",f:"M NAEEM",d:"20-SEP-11",b:"3840191637659",c:7},
+  {e:"544",n:"M USMAN",f:"M MUSHTAQ",d:"24-MAY-08",b:"3840169815293",c:7},
+  {e:"589",n:"TANZAIB",f:"ISHFAQ ALI",d:"14-JAN-12",b:"3840105555981",c:7},
+  {e:"609",n:"ALIYAN EJAZ",f:"EJAZ AHMED",d:"07-JUL-14",b:"3840132460849",c:7},
+  {e:"610",n:"SUBHAN AHMAD",f:"SHAHID AHMAD",d:"10-MAY-12",b:"3840177122313",c:7},
+  {e:"666",n:"MUHAMMAD SUFIAN BUTT",f:"MUZAMMAL ABBAS",d:"02-MAR-11",b:"3840171608799",c:7},
+  {e:"681",n:"MUHAMMAD HUSNAIN",f:"MUHAMMAD ASIF MEHMOOD",d:"22-JUL-09",b:"3840156252825",c:7},
+  {e:"694",n:"MUHAMMAD SAIM ABBAS",f:"GHULAM ABBAS",d:"18-MAY-13",b:"3840142092239",c:7},
+  {e:"728",n:"AYAAN ALI",f:"NAEEM ULLAH",d:"22-MAY-13",b:"3740548057031",c:7},
+  {e:"38",n:"ALI AMEER HUSSAIN",f:"MUHAMMAD ASHRAF",d:"04-SEP-08",b:"3840181836667",c:8},
+  {e:"65",n:"MUHAMMAD ABDULLAH",f:"YASIR ABBAS",d:"03-OCT-11",b:"3840196514779",c:8},
+  {e:"111",n:"AQIB JAVED",f:"JAVED ASHRAF",d:"27-OCT-12",b:"3840117295869",c:8},
+  {e:"114",n:"ZOHAIB AKHTAR",f:"MUHAMMAD AKHTER",d:"10-JUL-13",b:"3840181945827",c:8},
+  {e:"125",n:"MUHAMMAD HASNAIN",f:"TANVEER AHMAD",d:"10-DEC-10",b:"3840195074037",c:8},
+  {e:"178",n:"EHTSHAM ALI",f:"NAZAKAT ALI",d:"01-DEC-13",b:"3840188851825",c:8},
+  {e:"234",n:"HABIB ULLAH KHAN",f:"AMEER SHAH KHAN",d:"16-MAR-11",b:"3840125553145",c:8},
+  {e:"236",n:"MEER AKBAR KHAN",f:"ADAM KHAN",d:"18-APR-13",b:"3840188848649",c:8},
+  {e:"259",n:"MUHAMMAD SAYAM MUSTAFA",f:"GHULAM MUSTAFA",d:"26-JUL-13",b:"3840171252081",c:8},
+  {e:"260",n:"ALI ASGHAR",f:"MUHAMMAD ASLAM",d:"20-FEB-12",b:"3840484948909",c:8},
+  {e:"277",n:"EHSAM UL HAQ KHAN",f:"SODAGAR KKHAN",d:"23-DEC-12",b:"3840174353493",c:8},
+  {e:"397",n:"MUHAMMAD HASNAIN AMEER",f:"AHMAD HASSAN",d:"21-MAR-13",b:"3840109448753",c:8},
+  {e:"464",n:"ALI HASSAN SARFRAZ",f:"SARFRAZ ASHRAF",d:"18-NOV-12",b:"3840166799459",c:8},
+  {e:"486",n:"ALI HAIDAR",f:"MUHAMMAD ASIF",d:"06-JAN-13",b:"3840135521585",c:8},
+  {e:"489",n:"MUHAMMAD USMAN",f:"ABID HUSSAIN",d:"05-DEC-12",b:"",c:8},
+  {e:"495",n:"SAIF ULLAH",f:"ASHFAQ HUSSAIN",d:"04-JUL-13",b:"3420147410877",c:8},
+  {e:"536",n:"IBRAHIM KASHIF",f:"MUHAMMAD KASHIF",d:"05-JUL-12",b:"3840112935003",c:8},
+  {e:"545",n:"YOUSAF ALI",f:"SHABBIR AHMAD",d:"28-MAY-12",b:"3840151470961",c:8},
+  {e:"600",n:"ZAIN ALI",f:"ISHFAQ ALI",d:"12-FEB-10",b:"3840142016207",c:8},
+  {e:"662",n:"MUHAMMAD FAIZAN ALI",f:"MUHAMMAD FAROOQ",d:"21-JUN-13",b:"3840164039885",c:8},
+  {e:"664",n:"MUHAMMAD HAMEED GULL",f:"SAIF ULLAH",d:"07-JUL-12",b:"3840118654093",c:8},
+  {e:"717",n:"RANA ARSALAN WARIS",f:"MUHAMMAD WARIS",d:"14-DEC-09",b:"3420115914189",c:8}
+];
+
+// Subjects: ur=Urdu for result card, en=English for UI
+// max1=First Term, max2=Mid Term, maxF=Final Term
+const SUBS={
+  1:[{ur:"انگریزی",             en:"English",                     max1:50,max2:50,maxF:100},
+     {ur:"اردو",                en:"Urdu",                        max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",               en:"Mathematics",                 max1:50,max2:50,maxF:100},
+     {ur:"تجویدی قاعدہ",       en:"Tajveedi Qaida",              max1:50,max2:50,maxF:100},
+     {ur:"جنرل نالج",           en:"GK",                         max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",  en:"Islamiat/Ethics",             max1:50,max2:50,maxF:100}],
+  2:[{ur:"انگریزی",             en:"English",                     max1:50,max2:50,maxF:100},
+     {ur:"اردو",                en:"Urdu",                        max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",               en:"Mathematics",                 max1:50,max2:50,maxF:100},
+     {ur:"ناظرہ قرآن",          en:"Nazra Quran",                 max1:50,max2:50,maxF:100},
+     {ur:"جنرل نالج",           en:"GK",                         max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",  en:"Islamiat/Ethics",             max1:50,max2:50,maxF:100}],
+  3:[{ur:"انگریزی",             en:"English",                     max1:50,max2:50,maxF:100},
+     {ur:"اردو",                en:"Urdu",                        max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",               en:"Mathematics",                 max1:50,max2:50,maxF:100},
+     {ur:"ناظرہ قرآن",          en:"Nazra Quran",                 max1:50,max2:50,maxF:100},
+     {ur:"جنرل نالج",           en:"GK",                         max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",  en:"Islamiat/Ethics",             max1:50,max2:50,maxF:100}],
+  4:[{ur:"انگریزی",             en:"English",                     max1:50,max2:50,maxF:100},
+     {ur:"اردو",                en:"Urdu",                        max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",               en:"Mathematics",                 max1:50,max2:50,maxF:100},
+     {ur:"ناظرہ قرآن",          en:"Nazra Quran",                 max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",  en:"Islamiat/Ethics",             max1:50,max2:50,maxF:100},
+     {ur:"سائنس",               en:"Science",                     max1:50,max2:50,maxF:100},
+     {ur:"معاشرتی علوم",        en:"Social Studies",              max1:50,max2:50,maxF:100}],
+  5:[{ur:"انگریزی",             en:"English",                     max1:50,max2:50,maxF:100},
+     {ur:"اردو",                en:"Urdu",                        max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",               en:"Mathematics",                 max1:50,max2:50,maxF:100},
+     {ur:"ناظرہ قرآن",          en:"Nazra Quran",                 max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",  en:"Islamiat/Ethics",             max1:50,max2:50,maxF:100},
+     {ur:"سائنس",               en:"Science",                     max1:50,max2:50,maxF:100},
+     {ur:"معاشرتی علوم",        en:"Social Studies",              max1:50,max2:50,maxF:100}],
+  6:[{ur:"انگریزی",                   en:"English",                       max1:50,max2:50,maxF:100},
+     {ur:"اردو",                      en:"Urdu",                          max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",                     en:"Mathematics",                   max1:50,max2:50,maxF:100},
+     {ur:"ترجمۃ القرآن الکریم",       en:"Tarjuma-tul-Quran-ul-Majeed",  max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",        en:"Islamiat/Ethics",               max1:50,max2:50,maxF:100},
+     {ur:"سائنس",                     en:"Science",                       max1:50,max2:50,maxF:100},
+     {ur:"کمپیوٹر سائنس/عربی",       en:"Computer Science/Arabic",       max1:50,max2:50,maxF:100},
+     {ur:"جغرافیہ و تاریخ",           en:"Geography & History",           max1:50,max2:50,maxF:100},
+     {ur:"اختیاری مضمون / زراعت",    en:"Optional (Zari Taleem)",        max1:50,max2:50,maxF:100}],
+  7:[{ur:"انگریزی",                   en:"English",                       max1:50,max2:50,maxF:100},
+     {ur:"اردو",                      en:"Urdu",                          max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",                     en:"Mathematics",                   max1:50,max2:50,maxF:100},
+     {ur:"ترجمۃ القرآن الکریم",       en:"Tarjuma-tul-Quran-ul-Majeed",  max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",        en:"Islamiat/Ethics",               max1:50,max2:50,maxF:100},
+     {ur:"سائنس",                     en:"Science",                       max1:50,max2:50,maxF:100},
+     {ur:"کمپیوٹر سائنس/عربی",       en:"Computer Science/Arabic",       max1:50,max2:50,maxF:100},
+     {ur:"جغرافیہ و تاریخ",           en:"Geography & History",           max1:50,max2:50,maxF:100},
+     {ur:"اختیاری مضمون / زراعت",    en:"Optional (Zari Taleem)",        max1:50,max2:50,maxF:100}],
+  8:[{ur:"انگریزی",                   en:"English",                       max1:50,max2:50,maxF:100},
+     {ur:"اردو",                      en:"Urdu",                          max1:50,max2:50,maxF:100},
+     {ur:"ریاضی",                     en:"Mathematics",                   max1:50,max2:50,maxF:100},
+     {ur:"ترجمۃ القرآن الکریم",       en:"Tarjuma-tul-Quran-ul-Majeed",  max1:50,max2:50,maxF:100},
+     {ur:"اسلامیات/اخلاقیات",        en:"Islamiat/Ethics",               max1:50,max2:50,maxF:100},
+     {ur:"سائنس",                     en:"Science",                       max1:50,max2:50,maxF:100},
+     {ur:"کمپیوٹر سائنس/عربی",       en:"Computer Science/Arabic",       max1:50,max2:50,maxF:100},
+     {ur:"جغرافیہ و تاریخ",           en:"Geography & History",           max1:50,max2:50,maxF:100},
+     {ur:"اختیاری مضمون / زراعت",    en:"Optional (Zari Taleem)",        max1:50,max2:50,maxF:100}]
+};
+
+const GRADES=[
+  {min:80,g:"A+",c:"#1a6b3c"},{min:70,g:"A",c:"#27ae60"},
+  {min:60,g:"B",c:"#2980b9"},{min:50,g:"C",c:"#8e44ad"},
+  {min:40,g:"D",c:"#f39c12"},{min:33,g:"E",c:"#e67e22"}
+];
+const REMARKS={
+  "A+":"نہایت ذہین، محنتی اور بااخلاق طالبعلم ہے۔ ہر مضمون میں بہترین کارکردگی دکھائی۔ مستقبل روشن ہے۔",
+  "A":"طالبعلم کی کارکردگی بہت اچھی رہی۔ محنت اور توجہ مزید بڑھانے کی ضرورت ہے۔",
+  "B":"طالبعلم کی کارکردگی تسلی بخش رہی۔ مزید محنت اور باقاعدگی کی ضرورت ہے۔",
+  "C":"کارکردگی اوسط درجے کی رہی۔ مستقل محنت اور اساتذہ کی رہنمائی ضروری ہے۔",
+  "D":"طالبعلم کو مزید سخت محنت کی ضرورت ہے۔ والدین توجہ دیں۔",
+  "E":"کارکردگی کمزور رہی۔ مستقل محنت اور اضافی مشق کی اشد ضرورت ہے۔",
+  "F":"طالبعلم ناکام رہا۔ فوری توجہ اور خصوصی مدد درکار ہے۔"
+};
+
+function getGrade(pct){for(const g of GRADES)if(pct>=g.min)return g.g;return "F"}
+function getGradeColor(g){const f=GRADES.find(x=>x.g===g);return f?f.c:"#c0392b"}
+
+// ── GOOGLE APPS SCRIPT URL ──────────────────
+// Paste your deployed GAS Web App URL here OR set it from Settings page
+let GAS_URL=localStorage.getItem('sba_gas_url')||'';
+
+// Auto-save mark to Google Sheets when teacher enters
+async function syncMarkToSheet(enrl,cls,term,subjIdx,val,subjName){
+  const url=GAS_URL||localStorage.getItem('sba_gas_url')||'';
+  if(!url||url==='YOUR_GAS_URL')return; // skip if not configured
+  try{
+    fetch(url,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        action:'saveMark',
+        enrl,cls,term,subjIdx,val,
+        subjName,
+        maxM:val==='A'?0:(SUBS[cls]||[])[subjIdx]?.[term==='T1'?'max1':term==='T2'?'max2':'maxF']||50,
+        by:CU?CU.name:'unknown',
+        timestamp:new Date().toISOString()
+      })
+    }).then(r=>r.json()).then(d=>{
+      if(d.ok)console.log('Sheet synced ✓');
+    }).catch(()=>{});
+  }catch(e){}
+}
+
+// ── SCHOOL SETTINGS ──
+const DEF_SCH={
+  name:"گورنمنٹ ہائی سکول چک 10 شمالی بھلوال",
+  dist:"Sargodha",emis:"38410051",session:"2027-2026"
+};
+function getSch(){try{const s=localStorage.getItem("sba_sch");return s?{...DEF_SCH,...JSON.parse(s)}:{...DEF_SCH}}catch{return{...DEF_SCH}}}
+function saveSch(o){localStorage.setItem("sba_sch",JSON.stringify(o))}
+
+// ── MARKS ──
+let MARKS={};
+let STUDENTS=[...ALL_STUDENTS]; // mutable (can add new)
+// Timetable: who teaches what subject in which class
+// Format: [{teacherId, teacherName, cls, subjIdx, subjName}]
+let TIMETABLE=JSON.parse(localStorage.getItem('sba_timetable')||'[]');
+function saveTimetable(){localStorage.setItem('sba_timetable',JSON.stringify(TIMETABLE))}
+// Get teacher's allowed subjects based on timetable assignment
+function getTeacherAssignments(user){return TIMETABLE.filter(t=>t.user===user)}
+function canTeacherEditSubject(user,cls,subjIdx){
+  const asgn=getTeacherAssignments(user);
+  if(!asgn.length)return true; // no restrictions if no timetable set
+  return asgn.some(a=>a.cls===cls&&a.subjIdx===subjIdx);
+}
+
+let TEACHERS=JSON.parse(localStorage.getItem("sba_teachers")||'[{"id":"T001","name":"MALIK NAVEED","subject":"Admin","cls":"1-8","user":"admin","pass":"malik2526","role":"admin"},{"id":"T002","name":"Class Teacher","subject":"All Subjects","cls":"1-8","user":"teacher","pass":"teacher123","role":"teacher"}]');
+let ATTENDANCE=JSON.parse(localStorage.getItem("sba_att")||'{}');
+
+function mk(e,c,t,i){return`${e}_${c}_${t}_${i}`}
+function getMk(e,c,t,i){return MARKS[mk(e,c,t,i)]??""}
+function setMk(e,c,t,i,v){MARKS[mk(e,c,t,i)]=v;localStorage.setItem("sba_marks",JSON.stringify(MARKS))}
+function loadMks(){try{MARKS=JSON.parse(localStorage.getItem("sba_marks")||"{}")}catch{MARKS={}}}
+function saveTeachers(){localStorage.setItem("sba_teachers",JSON.stringify(TEACHERS))}
+function saveAtt(){localStorage.setItem("sba_att",JSON.stringify(ATTENDANCE))}
+function saveStudents(){localStorage.setItem("sba_students_extra",JSON.stringify(STUDENTS.filter(s=>!ALL_STUDENTS.find(a=>a.e===s.e&&a.c===s.c))))}
+
+function calcTotals(e,c,t){
+  const subs=SUBS[c]||[];
+  let obt=0,max=0,absCnt=0;
+  const rows=subs.map((s,i)=>{
+    const v=getMk(e,c,t,i);
+    const mxMap={T1:s.max1,T2:s.max2,FIN:s.maxF};
+    const mx=mxMap[t]||s.max1;
+    if(v==='A'){absCnt++;return{...s,v:'A',obt:0,max:mx,idx:i}}
+    const n=parseFloat(v)||0;
+    obt+=n;max+=mx;
+    return{...s,v,obt:n,max:mx,idx:i}
+  });
+  const pct=max>0?parseFloat(((obt/max)*100).toFixed(1)):0;
+  return{rows,obt,max,pct,grade:getGrade(pct),absCnt}
+}
+
+// ── AUTH ──
+const USERS={admin:{pass:"malik2526",role:"admin"},teacher:{pass:"teacher123",role:"teacher"}};
+let CU=null,CR='admin';
+
+function selRole(r,btn){
+  CR=r;
+  document.querySelectorAll('.role-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+function togglePW(){const i=document.getElementById('lp');i.type=i.type==='password'?'text':'password'}
+function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  const err=document.getElementById('lerr');
+  // check built-in
+  let found=null;
+  if(CR==='admin'&&u==='admin'&&p===USERS.admin.pass)found={user:'admin',role:'admin',name:'MALIK NAVEED'};
+  else if(CR==='teacher'&&u==='teacher'&&p===USERS.teacher.pass)found={user:'teacher',role:'teacher',name:'Class Teacher'};
+  // check added teachers
+  if(!found){
+    const t=TEACHERS.find(x=>x.user===u&&x.pass===p&&x.role===CR);
+    if(t)found={user:t.user,role:t.role,name:t.name};
+  }
+  if(found){
+    CU=found;err.classList.add('hidden');loadMks();showApp();
+  }else{
+    err.classList.remove('hidden');
+    err.textContent="❌ Incorrect username or password. Please try again.";
+  }
+}
+function doLogout(){
+  CU=null;
+  document.getElementById('loginScreen').classList.add('active');
+  document.getElementById('appScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('lu').value='';document.getElementById('lp').value='';
+  document.getElementById('lerr').classList.add('hidden');
+  closeSB();
+}
+
+// ── APP ──
+function showApp(){
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('appScreen').classList.add('active');
+  document.getElementById('appScreen').classList.remove('hidden');
+  history.pushState({page:'app'},'','');
+  buildSB();nav('dashboard');
+}
+window.addEventListener('popstate',function(e){
+  if(CU){history.pushState({page:'app'},'','');}
+});
+
+// ── SIDEBAR ──
+const ADMIN_NAV=[
+  {p:'dashboard',ico:'🏠',lbl:'Dashboard'},
+  {sec:'STUDENTS'},
+  {p:'students',ico:'👨‍🎓',lbl:'Students'},
+  {p:'upload',ico:'📤',lbl:'Upload PDF/Excel'},
+  {sec:'MARKS'},
+  {p:'marks',ico:'✏️',lbl:'Marks Entry'},
+  {sec:'REPORTS'},
+  {p:'results',ico:'📄',lbl:'Result Cards'},
+  {p:'gazette',ico:'📋',lbl:'Gazette'},
+  {p:'subReport',ico:'📚',lbl:'Subject Report'},
+  {p:'attendance',ico:'📅',lbl:'Attendance'},
+  {sec:'ADMIN'},
+  {p:'teachers',ico:'👩‍🏫',lbl:'Teachers'},
+  {p:'timetable',ico:'📆',lbl:'Timetable'},
+  {p:'settings',ico:'⚙️',lbl:'Settings'},
+];
+const TEACHER_NAV=[
+  {p:'dashboard',ico:'🏠',lbl:'Dashboard'},
+  {p:'marks',ico:'✏️',lbl:'Marks Entry'},
+  {p:'results',ico:'📄',lbl:'Result Cards'},
+  {p:'attendance',ico:'📅',lbl:'Attendance'},
+];
+
+function buildSB(){
+  document.getElementById('sbUser').textContent=`👤 ${CU.name} (${CU.role})`;
+  const items=CU.role==='admin'?ADMIN_NAV:TEACHER_NAV;
+  const nav=document.getElementById('sbNav');
+  nav.innerHTML=items.map(it=>{
+    if(it.sec)return`<div class="sb-section">${it.sec}</div>`;
+    return`<li id="sbn-${it.p}"><button class="sb-btn" onclick="nav('${it.p}')"><span class="sb-ico">${it.ico}</span>${it.lbl}</button></li>`;
+  }).join('');
+}
+
+let CPage='dashboard';
+function nav(p){
+  CPage=p;
+  document.querySelectorAll('.sb-nav li').forEach(li=>li.classList.remove('active'));
+  const li=document.getElementById(`sbn-${p}`);if(li)li.classList.add('active');
+  const mc=document.getElementById('mainCnt');
+  mc.innerHTML='<div style="display:flex;justify-content:center;padding:40px;"><div style="width:36px;height:36px;border:3px solid #dde8e2;border-top-color:#1a6b3c;border-radius:50%;animation:spin 0.7s linear infinite"></div></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
+  setTimeout(()=>{
+    switch(p){
+      case'dashboard':mc.innerHTML=pgDash();break;
+      case'students':mc.innerHTML=pgStudents();break;
+      case'upload':mc.innerHTML=pgUpload();break;
+      case'marks':mc.innerHTML=pgMarks();break;
+      case'results':mc.innerHTML=pgResults();break;
+      case'gazette':mc.innerHTML=pgGazette();break;
+      case'subReport':mc.innerHTML=pgSubReport();break;
+      case'attendance':mc.innerHTML=pgAttendance();break;
+      case'teachers':mc.innerHTML=pgTeachers();break;
+      case'timetable':mc.innerHTML=pgTimetable();break;
+      case'settings':mc.innerHTML=pgSettings();break;
+      default:mc.innerHTML=`<div class="card"><p>Page not found</p></div>`;
+    }
+  },60);
+  if(window.innerWidth<768)closeSB();
+}
+function toggleSB(){document.getElementById('sidebar').classList.toggle('open')}
+function closeSB(){document.getElementById('sidebar').classList.remove('open')}
+
+// ══════════════════════════════════════════
+// PAGES
+// ══════════════════════════════════════════
+
+// ── DASHBOARD ────────────────────────────
+function pgDash(){
+  const totMk=Object.values(MARKS).filter(v=>v!=="").length;
+  const sch=getSch();
+  const cc=[1,2,3,4,5,6,7,8].map(c=>({c,cnt:STUDENTS.filter(s=>s.c===c).length}));
+  return`
+  <div class="pg-head">
+    <div><div class="pg-title">🏠 Dashboard</div>
+    <div class="pg-sub">Session ${sch.session} | ${sch.name}</div></div>
+    <div style="font-size:11px;color:#888">EMIS: ${sch.emis}</div>
+  </div>
+  <div class="stat-grid">
+    ${[
+      {lbl:"Total Students",val:STUDENTS.length,ico:"👨‍🎓",c:"#1a6b3c"},
+      {lbl:"Classes",val:"1 — 8",ico:"🏫",c:"#2980b9"},
+      {lbl:"Session",val:sch.session,ico:"📅",c:"#8e44ad"},
+      {lbl:"Marks Entered",val:totMk,ico:"✏️",c:"#f39c12"},
+    ].map(s=>`<div class="stat" style="border-color:${s.c}">
+      <div class="stat-icon">${s.ico}</div>
+      <div class="stat-val" style="color:${s.c}">${s.val}</div>
+      <div class="stat-lbl">${s.lbl}</div>
+    </div>`).join('')}
+  </div>
+  <div class="card">
+    <h3>📚 Class-wise Student Strength</h3>
+    <div class="cls-grid">
+      ${cc.map(({c,cnt})=>`
+        <div class="cls-card" onclick="nav('marks');setTimeout(()=>setMarkCls(${c}),100)">
+          <div class="cls-num">${c}</div>
+          <div class="cls-lbl">Class ${c}</div>
+          <div class="cls-cnt">${cnt} Students</div>
+          <div class="pbar" style="margin-top:8px"><div class="pfill" style="width:${Math.min(100,cnt/3*100)}%"></div></div>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <h3>ℹ️ School Information</h3>
+    <table style="width:100%;font-size:13px">
+      <tr><td style="padding:6px;font-weight:700;width:35%">School Name:</td><td>${sch.name}</td></tr>
+      <tr style="background:#f9f9f9"><td style="padding:6px;font-weight:700">District:</td><td>${sch.dist}</td></tr>
+      <tr><td style="padding:6px;font-weight:700">EMIS:</td><td>${sch.emis}</td></tr>
+      <tr style="background:#f9f9f9"><td style="padding:6px;font-weight:700">Session:</td><td>${sch.session}</td></tr>
+      <tr><td style="padding:6px;font-weight:700">Developer:</td><td>MALIK NAVEED — 📱 +92-333-9815632</td></tr>
+    </table>
+  </div>`;
+}
+
+// ── STUDENTS ─────────────────────────────
+let stFilter={cls:0,q:''};
+function pgStudents(fc=0,fq=''){
+  stFilter={cls:fc,q:fq};
+  let list=STUDENTS;
+  if(fc)list=list.filter(s=>s.c===fc);
+  if(fq){const q=fq.toLowerCase();list=list.filter(s=>s.n.toLowerCase().includes(q)||s.f.toLowerCase().includes(q)||s.e.includes(q)||(s.b||'').includes(q))}
+  return`
+  <div class="pg-head">
+    <div><div class="pg-title">👨‍🎓 Students — Students</div>
+    <div class="pg-sub">${STUDENTS.length} total students</div></div>
+    ${CU.role==='admin'?`<div class="pg-actions">
+      <button class="btn btn-g" onclick="showAddStudent()">+ Add Student</button>
+    </div>`:''}
+  </div>
+  <div class="card">
+    <div class="fbar">
+      <input class="srch" id="stSrch" placeholder="🔍 Search name, father, enrollment..." value="${fq}" oninput="refreshStudents()"/>
+      <select class="fsel" id="stCls" onchange="refreshStudents()">
+        <option value="0">All Classes</option>
+        ${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}" ${fc==c?'selected':''}>Class ${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Enroll</th><th>Name</th><th>Father</th><th>Class</th><th>B-Form</th><th>DOB</th><th>Action</th></tr></thead>
+        <tbody>
+          ${list.map((s,i)=>`<tr>
+            <td>${i+1}</td>
+            <td><span class="badge b-blue">${s.e}</span></td>
+            <td style="font-weight:700">${s.n}</td>
+            <td style="font-size:12px">${s.f}</td>
+            <td><span class="badge b-green">Class ${s.c}</span></td>
+            <td style="font-size:11px;color:#888">${s.b||'—'}</td>
+            <td style="font-size:11px">${s.d}</td>
+            <td>
+              <button class="bx bx-g" onclick="printCard('${s.e}',${s.c})">📄 Result</button>
+              ${CU.role==='admin'?`<button class="bx bx-b" onclick="editStudent('${s.e}',${s.c})" style="margin-left:3px">✏️</button>
+              <button class="bx bx-r" onclick="delStudent('${s.e}',${s.c})" style="margin-left:3px">🗑</button>`:''}
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    ${list.length===0?'<div style="text-align:center;padding:30px;color:#aaa">No students found</div>':''}
+  </div>`;
+}
+function refreshStudents(){
+  const q=document.getElementById('stSrch')?.value||'';
+  const c=parseInt(document.getElementById('stCls')?.value||'0');
+  document.getElementById('mainCnt').innerHTML=pgStudents(c,q);
+}
+function showAddStudent(){
+  openModal('➕ Add New Student',`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fgrp" style="grid-column:1/-1"><label>Student Name *</label><input class="finp" id="as_n" placeholder="Full name in CAPS"/></div>
+      <div class="fgrp"><label>Father Name *</label><input class="finp" id="as_f" placeholder="Father name"/></div>
+      <div class="fgrp"><label>Class *</label><select class="finp" id="as_c">${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}">Class ${c}</option>`).join('')}</select></div>
+      <div class="fgrp"><label>Enrollment No. *</label><input class="finp" id="as_e" placeholder="Enrollment no."/></div>
+      <div class="fgrp"><label>B-Form No.</label><input class="finp" id="as_b" placeholder="B-Form CNIC"/></div>
+      <div class="fgrp"><label>Date of Birth</label><input class="finp" id="as_d" placeholder="DD-MMM-YY"/></div>
+    </div>`,
+    `<button class="btn btn-grey" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-g" onclick="addStudent()">Save ✓</button>`);
+}
+function addStudent(){
+  const n=document.getElementById('as_n').value.trim().toUpperCase();
+  const f=document.getElementById('as_f').value.trim().toUpperCase();
+  const c=parseInt(document.getElementById('as_c').value);
+  const e=document.getElementById('as_e').value.trim();
+  const b=document.getElementById('as_b').value.trim();
+  const d=document.getElementById('as_d').value.trim();
+  if(!n||!f||!e){showToast('Name, Father and Enrollment are required!','err');return}
+  if(STUDENTS.find(s=>s.e===e&&s.c===c)){showToast('This enrollment already exists!','err');return}
+  STUDENTS.push({e,n,f,d,b,c});saveStudents();
+  closeModal();showToast('Student added ✓');nav('students');
+}
+function editStudent(e,c){
+  const s=STUDENTS.find(x=>x.e===e&&x.c===c);if(!s)return;
+  openModal('✏️ Edit Student',`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fgrp" style="grid-column:1/-1"><label>Name</label><input class="finp" id="es_n" value="${s.n}"/></div>
+      <div class="fgrp"><label>Father</label><input class="finp" id="es_f" value="${s.f}"/></div>
+      <div class="fgrp"><label>Class</label><select class="finp" id="es_c">${[1,2,3,4,5,6,7,8].map(cc=>`<option value="${cc}" ${cc===s.c?'selected':''}>Class ${cc}</option>`).join('')}</select></div>
+      <div class="fgrp"><label>بی فارم</label><input class="finp" id="es_b" value="${s.b||''}"/></div>
+      <div class="fgrp"><label>Date of Birth</label><input class="finp" id="es_d" value="${s.d||''}"/></div>
+    </div>`,
+    `<button class="btn btn-grey" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-g" onclick="saveEditStudent('${e}',${c})">Save ✓</button>`);
+}
+function saveEditStudent(e,c){
+  const idx=STUDENTS.findIndex(s=>s.e===e&&s.c===c);if(idx<0)return;
+  STUDENTS[idx]={
+    ...STUDENTS[idx],
+    n:document.getElementById('es_n').value.trim().toUpperCase(),
+    f:document.getElementById('es_f').value.trim().toUpperCase(),
+    c:parseInt(document.getElementById('es_c').value),
+    b:document.getElementById('es_b').value.trim(),
+    d:document.getElementById('es_d').value.trim()
+  };
+  saveStudents();closeModal();showToast('Saved ✓');nav('students');
+}
+function delStudent(e,c){
+  if(!confirm(`Are you sure you want to delete this student?`))return;
+  const idx=STUDENTS.findIndex(s=>s.e===e&&s.c===c);
+  if(idx>=0){STUDENTS.splice(idx,1);saveStudents();showToast('Deleted');nav('students')}
+}
+
+// ── UPLOAD PDF/EXCEL ──────────────────────
+function pgUpload(){
+  return`
+  <div class="pg-head"><div>
+    <div class="pg-title">📤 Students اپلوڈ — Upload Students</div>
+    <div class="pg-sub">PDF یا Excel سے Students شامل / اپڈیٹ کریں</div>
+  </div></div>
+  <div class="card">
+    <h3>📁 Upload Excel / CSV File</h3>
+    <p style="font-size:13px;color:#666;margin-bottom:14px">Excel columns must be: <strong>Name, Father, Class, Enrollment, BForm, DOB</strong></p>
+    <div class="upload-zone" onclick="document.getElementById('xlFile').click()" ondragover="event.preventDefault();this.classList.add('drag')" ondragleave="this.classList.remove('drag')" ondrop="handleXlDrop(event)">
+      <div class="uz-icon">📊</div>
+      <div class="uz-txt">Drop Excel/CSV here or click to browse</div>
+      <div class="uz-sub">Format: .csv or .xlsx</div>
+    </div>
+    <input type="file" id="xlFile" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleXlFile(this)"/>
+    <div id="uploadResult" style="margin-top:14px"></div>
+  </div>
+  <div class="card">
+    <h3>📋 Sample Excel Format</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Father</th><th>Class</th><th>Enrollment</th><th>BForm</th><th>DOB</th></tr></thead>
+        <tbody>
+          <tr><td>AHMAD ALI</td><td>ZAFAR ALI</td><td>6</td><td>750</td><td>3840123456789</td><td>15-JAN-12</td></tr>
+          <tr><td>HASSAN RAZA</td><td>RAZA HUSSAIN</td><td>7</td><td>751</td><td>3840987654321</td><td>22-MAR-11</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <button class="btn btn-blue" style="margin-top:12px" onclick="downloadSampleCSV()">⬇ Download Sample CSV</button>
+  </div>`;
+}
+function handleXlDrop(e){e.preventDefault();e.currentTarget.classList.remove('drag');const f=e.dataTransfer.files[0];if(f)processUploadFile(f)}
+function handleXlFile(inp){const f=inp.files[0];if(f)processUploadFile(f);inp.value=''}
+function processUploadFile(file){
+  const out=document.getElementById('uploadResult');
+  out.innerHTML='<div style="color:#888;font-size:13px">⏳ Processing file...</div>';
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const text=e.target.result;
+    const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+    let added=0,updated=0,errors=[];
+    // skip header
+    for(let i=1;i<lines.length;i++){
+      const cols=lines[i].split(',').map(c=>c.trim().replace(/^"|"$/g,''));
+      if(cols.length<4){errors.push(`Row ${i+1}: کالم کم ہیں`);continue}
+      const[name,father,cls,enrl,bform='',dob='']=cols;
+      const c=parseInt(cls);
+      if(!name||!father||!enrl||isNaN(c)||c<1||c>8){errors.push(`Row ${i+1}: ڈیٹا غلط`);continue}
+      const ex=STUDENTS.findIndex(s=>s.e===enrl&&s.c===c);
+      if(ex>=0){STUDENTS[ex]={...STUDENTS[ex],n:name.toUpperCase(),f:father.toUpperCase(),b:bform,d:dob};updated++}
+      else{STUDENTS.push({e:enrl,n:name.toUpperCase(),f:father.toUpperCase(),c,d:dob,b:bform});added++}
+    }
+    saveStudents();
+    out.innerHTML=`<div style="background:#e8f5ee;border-radius:8px;padding:14px;font-size:13px">
+      ✅ <strong>${added}</strong> new students added | <strong>${updated}</strong> updated
+      ${errors.length?`<br><span style="color:#c0392b">⚠️ ${errors.length} errors: ${errors.slice(0,3).join(', ')}</span>`:''}
+    </div>`;
+  };
+  if(file.name.endsWith('.csv'))reader.readAsText(file);
+  else{out.innerHTML='<div style="color:#c0392b;font-size:13px">⚠️ براہ کرم CSV فارمیٹ استعمال کریں۔ Excel کو CSV کے طور پر محفوظ کریں۔</div>'}
+}
+function downloadSampleCSV(){
+  const csv="Name,Father,Class,Enrollment,BForm,DOB\nAHMAD ALI,ZAFAR ALI,6,750,3840123456789,15-JAN-12\nHASSAN RAZA,RAZA HUSSAIN,7,751,3840987654321,22-MAR-11";
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='students_sample.csv';a.click();
+}
+
+// ── MARKS ENTRY ───────────────────────────
+let mCls=1,mTerm='T1',mStu=null;
+
+function pgMarks(){
+  return`
+  <div class="pg-head">
+    <div><div class="pg-title">✏️ Marks Entry</div>
+    <div class="pg-sub">Select class and exam term</div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+      ${['T1','T2','FIN'].map(t=>{const lk=isTermLocked(t);const lbl=t==='T1'?'First':t==='T2'?'Mid':'Final';
+        return lk?`<span class="badge b-red" style="padding:4px 10px">🔒 ${lbl} Term LOCKED</span>`:
+                  `<span class="badge b-green" style="padding:4px 10px">🔓 ${lbl} Open</span>`;
+      }).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="fbar">
+      <div>
+        <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">Class</label>
+        <select class="fsel" id="mClsSel" onchange="setMarkCls(this.value)">
+          ${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}" ${mCls==c?'selected':''}>Class ${c}</option>`).join('')}
+        </select>
+      </div>
+      <div style="flex:1">
+        <label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">Term</label>
+        <div class="term-tabs">
+          <button class="t-tab ${mTerm==='T1'?'active':''}" onclick="setTerm('T1')">${isTermLocked('T1')?'🔒 ':''} First Term</button>
+          <button class="t-tab ${mTerm==='T2'?'active':''}" onclick="setTerm('T2')">${isTermLocked('T2')?'🔒 ':''} Mid Term</button>
+          <button class="t-tab ${mTerm==='FIN'?'active':''}" onclick="setTerm('FIN')">${isTermLocked('FIN')?'🔒 ':''} Final Term</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="stListPanel">${renderStList()}</div>
+  <div id="marksFormPanel" class="${mStu?'':'hidden'}">${mStu?renderMkForm():''}</div>`;
+}
+function setMarkCls(c){mCls=parseInt(c);mStu=null;document.getElementById('mClsSel').value=c;document.getElementById('stListPanel').innerHTML=renderStList();document.getElementById('marksFormPanel').classList.add('hidden')}
+function setTerm(t){mTerm=t;document.querySelectorAll('.t-tab').forEach((b,i)=>{const ts=['T1','T2','FIN'];b.classList.toggle('active',ts[i]===t)});document.getElementById('stListPanel').innerHTML=renderStList();if(mStu){document.getElementById('marksFormPanel').innerHTML=renderMkForm();document.getElementById('marksFormPanel').classList.remove('hidden')}}
+
+function renderStList(){
+  const sts=STUDENTS.filter(s=>s.c===mCls);
+  const tLbl=mTerm==='T1'?'First Term':mTerm==='T2'?'Mid Term':'Final Term';
+  return`<div class="card">
+    <h3>👨‍🎓 Class ${mCls} — ${tLbl}</h3>
+    <div class="fbar"><input class="srch" placeholder="🔍 Search..." oninput="filterMkList(this.value)"/></div>
+    <div class="tbl-wrap"><table id="mkTbl">
+      <thead><tr><th>#</th><th>Name</th><th>Father</th><th>Obtained</th><th>Total</th><th>%</th><th>Grade</th><th>Action</th></tr></thead>
+      <tbody>
+        ${sts.map((s,i)=>{
+          const{obt,max,pct,grade}=calcTotals(s.e,s.c,mTerm);
+          const has=obt>0;
+          return`<tr>
+            <td>${i+1}</td>
+            <td style="font-weight:700">${s.n}</td>
+            <td style="font-size:12px">${s.f}</td>
+            <td style="color:#1a6b3c;font-weight:700">${has?obt:'—'}</td>
+            <td>${has?max:'—'}</td>
+            <td style="font-weight:700;color:#c0392b">${has?pct+'%':'—'}</td>
+            <td>${has?`<span class="gchip g${grade.replace('+','\\+')}" style="background:${getGradeColor(grade)}">${grade}</span>`:'—'}</td>
+            <td>
+              <button class="bx bx-g" onclick="openMkForm('${s.e}')">✏️ Marks</button>
+              <button class="bx bx-b" onclick="printCard('${s.e}',${s.c})" style="margin-left:3px">🖨️</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+function filterMkList(q){document.querySelectorAll('#mkTbl tbody tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q.toLowerCase())?'':'')}
+function openMkForm(e){mStu=STUDENTS.find(s=>s.e===e&&s.c===mCls);if(!mStu)return;document.getElementById('marksFormPanel').innerHTML=renderMkForm();document.getElementById('marksFormPanel').classList.remove('hidden');document.getElementById('marksFormPanel').scrollIntoView({behavior:'smooth'})}
+
+function renderMkForm(){
+  if(!mStu)return'';
+  const s=mStu;
+  const subs=SUBS[s.c]||[];
+  const tLbl=mTerm==='T1'?'First Term':mTerm==='T2'?'Mid Term':'Final Term';
+  const{obt,max,pct,grade}=calcTotals(s.e,s.c,mTerm);
+  return`<div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div>
+        <div style="font-size:16px;font-weight:800">${s.n}</div>
+        <div style="font-size:12px;color:#888">ولد ${s.f} | Class ${s.c} | انرولمنٹ: ${s.e}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-gold" onclick="printCard('${s.e}',${s.c})">🖨️ Print</button>
+        <button class="btn btn-grey" onclick="document.getElementById('marksFormPanel').classList.add('hidden')">✕</button>
+      </div>
+    </div>
+    <div style="background:#1a6b3c;color:#fff;padding:9px 14px;border-radius:8px;font-weight:700;font-size:13px;margin-bottom:0">
+      📝 ${tLbl}
+    </div>
+    ${subs.map((sub,i)=>{
+      const maxM=mTerm==='T1'?sub.max1:mTerm==='T2'?sub.max2:sub.maxF;
+      const val=getMk(s.e,s.c,mTerm,i);
+      const isAbs=val==='A';
+      const canEdit=CU&&(CU.role==='admin'||canTeacherEditSubject(CU.user,s.c,i));
+      const termLocked=isTermLocked(mTerm);
+      const disabled=isAbs||!canEdit||termLocked;
+      return`<div class="marks-row" style="${!canEdit?'opacity:0.45;':''}">
+        <div class="marks-subj" style="font-family:var(--body);direction:ltr;text-align:left">
+          ${sub.en}${!canEdit?'<span style="font-size:10px;color:#c0392b;margin-left:6px">(Not assigned)</span>':''}
+        </div>
+        <div class="marks-max">Max: ${maxM}</div>
+        <label class="abs-label" style="${!canEdit?'pointer-events:none':''}">
+          <input type="checkbox" ${isAbs?'checked':''} ${!canEdit||termLocked?'disabled':''} onchange="togAbs('${s.e}',${s.c},${i},this.checked,${maxM})"/> Absent
+        </label>
+        <input type="number" step="0.5" min="0" max="${maxM}"
+          class="marks-inp ${val&&!isAbs?(parseFloat(val)<=maxM?'ok':'bad'):''}" id="mi${i}"
+          value="${isAbs?'':val}" ${disabled?'disabled':''}
+          placeholder="${!canEdit?'N/A':'—'}"
+          oninput="liveMk(this,${maxM})"
+          onchange="saveMk('${s.e}',${s.c},${i},this.value,${maxM})"/>
+      </div>`;
+    }).join('')}
+    <div class="res-sum" id="resSumBox">
+      <div class="rs-box"><div class="rs-val" style="color:#1a6b3c" id="rsObt">${obt}</div><div class="rs-lbl">Obtained</div></div>
+      <div class="rs-box"><div class="rs-val" style="color:#2980b9" id="rsMax">${max}</div><div class="rs-lbl">Total</div></div>
+      <div class="rs-box"><div class="rs-val" style="color:#8e44ad" id="rsPct">${pct}٪</div><div class="rs-lbl">Percentage</div></div>
+      <div class="rs-box"><div class="rs-val" style="color:${getGradeColor(grade)}" id="rsGrd">${grade}</div><div class="rs-lbl">Grade</div></div>
+    </div>
+    <div style="padding:14px;border-top:1px solid #eee">
+      <label style="font-size:13px;font-weight:700;display:block;margin-bottom:6px">💬 Teacher Remarks</label>
+      <textarea id="rmkTA" rows="2" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:8px;font-size:13px;resize:vertical;font-family:inherit" placeholder="Write remarks...">${localStorage.getItem('rmk_'+s.e)||''}</textarea>
+      <button class="btn btn-g btn-sm" style="margin-top:8px" onclick="saveRmk('${s.e}')">Save</button>
+    </div>
+  </div>`;
+}
+function liveMk(inp,max){
+  if(inp.value===''){inp.classList.remove('ok','bad');inp.style.borderColor='var(--border)';inp.style.background='';return}
+  const v=parseFloat(inp.value);
+  if(isNaN(v)){inp.classList.add('bad');inp.classList.remove('ok');return}
+  const r=Math.round(v*2)/2;
+  if(Math.abs(v-r)>0.001||v<0||v>max){inp.classList.add('bad');inp.classList.remove('ok');inp.style.background='#fff8f8';}
+  else{inp.classList.add('ok');inp.classList.remove('bad');inp.style.borderColor='';inp.style.background='';}
+}
+function saveMk(e,c,i,val,max){
+  if(isTermLocked(mTerm)){showToast('This term is locked by Admin!','err');document.getElementById('mi'+i).value=getMk(e,c,mTerm,i)||'';return}
+  if(CU&&CU.role!=='admin'&&!canTeacherEditSubject(CU.user,c,i)){showToast('You are not assigned to this subject!','err');document.getElementById('mi'+i).value=getMk(e,c,mTerm,i)||'';return}
+  if(val===''||val===null){setMk(e,c,mTerm,i,'');refreshRS(e,c);return}
+  const n=parseFloat(val);
+  if(isNaN(n)){showToast('صحیح نمبر لکھیں!','err');document.getElementById('mi'+i).value='';return}
+  if(n>max){showToast(`Marks cannot exceed ${max}!`,'err');document.getElementById('mi'+i).value=max;return}
+  if(n<0){showToast('Marks cannot be negative!','err');document.getElementById('mi'+i).value=0;return}
+  const r=Math.round(n*2)/2;
+  if(Math.abs(n-r)>0.001){showToast('Only .0 or .5 values allowed (e.g. 40, 40.5)','warn');document.getElementById('mi'+i).value=r;return}
+  setMk(e,c,mTerm,i,String(r));
+  const inp2=document.getElementById('mi'+i);
+  inp2.value=r;inp2.classList.add('ok');inp2.classList.remove('bad');
+  inp2.style.borderColor='';inp2.style.background='';
+  refreshRS(e,c);
+  // Auto-sync to Google Sheets
+  const subs=SUBS[c]||[];
+  syncMarkToSheet(e,c,mTerm,i,String(r),subs[i]?.en||'');
+}
+function togAbs(e,c,i,absent,max){
+  if(isTermLocked(mTerm)){showToast('This term is locked by Admin!','err');return}
+  if(CU&&CU.role!=='admin'&&!canTeacherEditSubject(CU.user,c,i)){showToast('You are not assigned to this subject!','err');return}
+  const inp=document.getElementById('mi'+i);
+  if(absent){setMk(e,c,mTerm,i,'A');inp.value='';inp.disabled=true;inp.classList.remove('ok','bad');
+    syncMarkToSheet(e,c,mTerm,i,'A',(SUBS[c]||[])[i]?.en||'');
+  }else{setMk(e,c,mTerm,i,'');inp.disabled=false}
+  refreshRS(e,c);
+}
+function refreshRS(e,c){
+  const{obt,max,pct,grade}=calcTotals(e,c,mTerm);
+  const el=id=>document.getElementById(id);
+  if(el('rsObt'))el('rsObt').textContent=obt;
+  if(el('rsMax'))el('rsMax').textContent=max;
+  if(el('rsPct'))el('rsPct').textContent=pct+'%';
+  if(el('rsGrd')){el('rsGrd').textContent=grade;el('rsGrd').style.color=getGradeColor(grade)}
+  document.getElementById('stListPanel').innerHTML=renderStList();
+}
+function saveRmk(e){localStorage.setItem('rmk_'+e,document.getElementById('rmkTA')?.value||'');showToast('Remarks saved ✓')}
+
+// ── RESULTS ──────────────────────────────
+let rCls=1,rTerm='T1';
+
+// ── TERM LOCK (Admin only) ────────────────
+function getTermLocks(){try{return JSON.parse(localStorage.getItem('sba_term_locks')||'{}')}catch{return{}}}
+function setTermLock(term,locked){const l=getTermLocks();l[term]=locked;localStorage.setItem('sba_term_locks',JSON.stringify(l))}
+function isTermLocked(term){return getTermLocks()[term]===true}
+function pgResults(){
+  return`
+  <div class="pg-head">
+    <div><div class="pg-title">📄 Result Cards</div>
+    <div class="pg-sub">Print individual result cards</div></div>
+    ${CU&&CU.role==='admin'?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      ${['T1','T2','FIN'].map(t=>{const lk=isTermLocked(t);const lbl=t==='T1'?'First':t==='T2'?'Mid':'Final';
+        return`<button class="btn btn-sm" style="background:${lk?'#c0392b':'#1a6b3c'};color:#fff;padding:6px 12px" onclick="adminToggleLock('${t}')" title="${lk?'Click to Unlock':'Click to Lock'}">
+          ${lk?'🔒 Unlock':'🔓 Lock'} ${lbl}</button>`;}).join('')}
+    </div>`:''}
+  </div>
+  <div class="card">
+    <div class="fbar">
+      <select class="fsel" id="rcCls" onchange="rCls=parseInt(this.value);refreshRList()">
+        ${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}" ${rCls==c?'selected':''}>Class ${c}</option>`).join('')}
+      </select>
+      <select class="fsel" id="rcTrm" onchange="rTerm=this.value;refreshRList()">
+        <option value="T1">First Term</option>
+        <option value="T2">Mid Term</option>
+        <option value="FIN" ${rTerm==='FIN'?'selected':''}>Final Term</option>
+      </select>
+      <input class="srch" id="rcSrch" placeholder="🔍 Search..." oninput="refreshRList()"/>
+      <button class="btn btn-gold" onclick="printAllClass()">🖨️ Whole Class</button>
+    </div>
+    <div id="rcList">${renderRList()}</div>
+  </div>`;
+}
+function renderRList(){
+  let sts=STUDENTS.filter(s=>s.c===rCls);
+  const q=document.getElementById('rcSrch')?.value||'';
+  if(q)sts=sts.filter(s=>s.n.toLowerCase().includes(q.toLowerCase())||s.e.includes(q));
+  return`<div class="tbl-wrap"><table>
+    <thead><tr><th>#</th><th>Name</th><th>Father</th><th>Enrollment</th><th>Action</th></tr></thead>
+    <tbody>
+      ${sts.map((s,i)=>`<tr>
+        <td>${i+1}</td><td style="font-weight:700">${s.n}</td><td style="font-size:12px">${s.f}</td>
+        <td><span class="badge b-blue">${s.e}</span></td>
+        <td>
+          <button class="bx bx-g" onclick="printCard('${s.e}',${s.c})">🖨️ Print</button>
+          <button class="bx bx-b" onclick="printCard('${s.e}',${s.c})" style="margin-left:3px">👁 Preview</button>
+        </td>
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+}
+function refreshRList(){rCls=parseInt(document.getElementById('rcCls')?.value||rCls);rTerm=document.getElementById('rcTrm')?.value||rTerm;document.getElementById('rcList').innerHTML=renderRList()}
+function printAllClass(){
+  const sts=STUDENTS.filter(s=>s.c===rCls);
+  if(!sts.length){showToast('No students in this class!','warn');return}
+  openPrint(sts.map(s=>buildRC(s,rTerm)).join(''),`Class ${rCls} — Result Cards`)
+}
+
+function toggleTermLock(term){
+  if(!CU||CU.role!=='admin'){showToast('Admin only!','err');return}
+  const locked=!isTermLocked(term);
+  setTermLock(term,locked);
+  const lbl=term==='T1'?'First':term==='T2'?'Mid':'Final';
+  showToast(locked?`🔒 ${lbl} Term LOCKED — teachers cannot edit`:`🔓 ${lbl} Term UNLOCKED`);
+  nav('marks'); // stay on marks page to see effect
+}
+function adminToggleLock(term){
+  toggleTermLock(term);
+  nav('results');
+}
+
+// ── GAZETTE ───────────────────────────────
+function pgGazette(){
+  return`
+  <div class="pg-head"><div>
+    <div class="pg-title">📋 Class Gazette</div>
+    <div class="pg-sub">Complete class result on one page</div>
+  </div></div>
+  <div class="card">
+    <div class="fbar">
+      <select class="fsel" id="gzCls">${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}">Class ${c}</option>`).join('')}</select>
+      <select class="fsel" id="gzTrm">
+        <option value="T1">First Term</option><option value="T2">Mid Term</option><option value="FIN">Final Term</option>
+      </select>
+      <button class="btn btn-g" onclick="buildGazette()">📊 Generate Gazette</button>
+      <button class="btn btn-gold" onclick="printGazette()">🖨️ Print</button>
+    </div>
+    <div id="gzOut"></div>
+  </div>`;
+}
+function buildGazette(){
+  const cls=parseInt(document.getElementById('gzCls').value);
+  const term=document.getElementById('gzTrm').value;
+  const tLbl=term==='T1'?'First Term':term==='T2'?'Mid Term':'End of Year Final Term';
+  const sch=getSch();
+  const sts=STUDENTS.filter(s=>s.c===cls);
+  const subs=SUBS[cls]||[];
+  const results=sts.map(s=>{
+    const{obt,max,pct,grade}=calcTotals(s.e,s.c,term);
+    const subMarks=subs.map((_,i)=>getMk(s.e,s.c,term,i));
+    return{...s,obt,max,pct,grade,subMarks};
+  }).sort((a,b)=>b.pct-a.pct).map((s,i)=>({...s,pos:s.pct>0?i+1:'-'}));
+
+  const pass=results.filter(r=>r.pct>=33).length;
+  const fail=results.length-pass;
+
+  document.getElementById('gzOut').innerHTML=`
+  <div style="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap">
+    <span class="badge b-green" style="font-size:13px;padding:5px 12px">✅ Pass: ${pass}</span>
+    <span class="badge b-red" style="font-size:13px;padding:5px 12px">❌ فیل: ${fail}</span>
+    <span class="badge b-blue" style="font-size:13px;padding:5px 12px">کل: ${results.length}</span>
+    <span class="badge b-gold" style="font-size:13px;padding:5px 12px">Rate: ${results.length?((pass/results.length)*100).toFixed(1):0}%</span>
+  </div>
+  <div style="overflow-x:auto;font-size:11px">
+  <table style="width:100%;border-collapse:collapse;min-width:600px">
+    <thead>
+      <tr style="background:#1a6b3c;color:#fff">
+        <th style="padding:6px 5px;border:1px solid #555">Pos</th>
+        <th style="padding:6px 5px;border:1px solid #555">Enroll</th>
+        <th style="padding:6px 5px;border:1px solid #555;min-width:140px">Name</th>
+        <th style="padding:6px 5px;border:1px solid #555;min-width:120px">Father</th>
+        ${subs.map(s=>`<th style="padding:3px;border:1px solid #555;font-size:9px;writing-mode:vertical-lr;height:60px;text-orientation:mixed">${s.en}</th>`).join('')}
+        <th style="padding:6px 5px;border:1px solid #555">Obtained</th>
+        <th style="padding:6px 5px;border:1px solid #555">Total</th>
+        <th style="padding:6px 5px;border:1px solid #555">%</th>
+        <th style="padding:6px 5px;border:1px solid #555">Grade</th>
+        <th style="padding:6px 5px;border:1px solid #555">Result</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${results.map((r,i)=>{
+        const bg=r.pos===1?'#fffde7':r.pos===2?'#f5f5f5':r.pos===3?'#fff3e0':'#fff';
+        return`<tr style="background:${bg}">
+          <td style="border:1px solid #ddd;text-align:center;font-weight:900;padding:5px">${r.pos}</td>
+          <td style="border:1px solid #ddd;text-align:center;padding:5px">${r.e}</td>
+          <td style="border:1px solid #ddd;font-weight:700;padding:5px">${r.n}</td>
+          <td style="border:1px solid #ddd;font-size:11px;padding:5px">${r.f}</td>
+          ${r.subMarks.map(v=>`<td style="border:1px solid #ddd;text-align:center;padding:5px;font-size:11px">${v===''?'—':v==='A'?'Abs':v}</td>`).join('')}
+          <td style="border:1px solid #ddd;text-align:center;font-weight:700;color:#1a6b3c;padding:5px">${r.obt}</td>
+          <td style="border:1px solid #ddd;text-align:center;padding:5px">${r.max}</td>
+          <td style="border:1px solid #ddd;text-align:center;font-weight:700;color:#c0392b;padding:5px">${r.pct}٪</td>
+          <td style="border:1px solid #ddd;text-align:center;padding:5px"><span style="background:${getGradeColor(r.grade)};color:#fff;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:700">${r.grade}</span></td>
+          <td style="border:1px solid #ddd;text-align:center;padding:5px">${r.pct>=33?'<span style="color:#1a6b3c;font-weight:700">Pass</span>':'<span style="color:#c0392b;font-weight:700">Fail</span>'}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table></div>
+  <div id="gzData" data-cls="${cls}" data-term="${term}" style="display:none"></div>`;
+}
+function printGazette(){
+  const el=document.getElementById('gzData');
+  if(!el){showToast('Please generate gazette first!','warn');return}
+  const cls=parseInt(el.dataset.cls||'1');
+  const term=el.dataset.term||'T1';
+  const tLbl=term==='T1'?'First Term':term==='T2'?'Mid Term':'End of Year Final Term';
+  const sch=getSch();
+  const sts=STUDENTS.filter(s=>s.c===cls);
+  const subs=SUBS[cls]||[];
+  const results=sts.map(s=>{
+    const{obt,max,pct,grade}=calcTotals(s.e,s.c,term);
+    const subMarks=subs.map((_,i)=>getMk(s.e,s.c,term,i));
+    return{...s,obt,max,pct,grade,subMarks};
+  }).sort((a,b)=>b.pct-a.pct).map((s,i)=>({...s,pos:s.pct>0?i+1:'-'}));
+
+  const pass=results.filter(r=>r.pct>=33).length;
+
+  // Build A4 landscape gazette — all on one page
+  const html=`
+  <div class="gazette-page" style="page-break-inside:avoid">
+    <div style="text-align:center;border-bottom:3px solid #1a6b3c;padding-bottom:8px;margin-bottom:8px">
+      <div style="font-family:'Noto Nastaliq Urdu',serif;font-size:16px;font-weight:700;color:#1a6b3c;direction:rtl">${sch.name}</div>
+      <div style="font-family:'Noto Nastaliq Urdu',serif;font-size:12px;direction:rtl">Result Gazette — جماعت ${cls} — ${tLbl} — Session ${sch.session}</div>
+      <div style="font-size:10px;color:#777">EMIS: ${sch.emis} | Pass: ${pass}/${results.length} | Rate: ${results.length?((pass/results.length)*100).toFixed(1):0}%</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:7px">
+      <thead>
+        <tr>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">Pos</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">Enroll</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555;min-width:80px">Name</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555;min-width:70px">Father</th>
+          ${subs.map(s=>`<th style="background:#1a6b3c;color:#fff;padding:2px 1px;border:1px solid #555;font-size:6px;width:30px;max-width:30px"><div style="writing-mode:vertical-rl;text-orientation:mixed;height:55px;overflow:hidden">${s.en}</div></th>`).join('')}
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">Obtained</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">Total</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">%</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">Grade</th>
+          <th style="background:#1a6b3c;color:#fff;padding:3px 2px;border:1px solid #555">Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${results.map((r,idx)=>{
+          const bg=r.pos===1?'#fffde7':r.pos===2?'#f5f5f5':r.pos===3?'#fff3e0':idx%2===0?'#fff':'#f9f9f9';
+          return`<tr style="background:${bg}">
+            <td style="border:1px solid #ccc;text-align:center;font-weight:900;padding:3px 2px">${r.pos}</td>
+            <td style="border:1px solid #ccc;text-align:center;padding:3px 2px">${r.e}</td>
+            <td style="border:1px solid #ccc;font-weight:700;padding:3px 2px;font-size:7px">${r.n}</td>
+            <td style="border:1px solid #ccc;padding:3px 2px;font-size:6.5px">${r.f}</td>
+            ${r.subMarks.map(v=>`<td style="border:1px solid #ccc;text-align:center;padding:2px 1px">${v===''?'—':v==='A'?'Abs':v}</td>`).join('')}
+            <td style="border:1px solid #ccc;text-align:center;font-weight:700;color:#1a6b3c;padding:3px 2px">${r.obt}</td>
+            <td style="border:1px solid #ccc;text-align:center;padding:3px 2px">${r.max}</td>
+            <td style="border:1px solid #ccc;text-align:center;font-weight:700;color:#c0392b;padding:3px 2px">${r.pct}٪</td>
+            <td style="border:1px solid #ccc;text-align:center;padding:3px 2px"><span style="background:${getGradeColor(r.grade)};color:#fff;padding:1px 4px;border-radius:3px;font-weight:700">${r.grade}</span></td>
+            <td style="border:1px solid #ccc;text-align:center;font-weight:700;padding:3px 2px;color:${r.pct>=33?'#1a6b3c':'#c0392b'}">${r.pct>=33?'Pass':'Fail'}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="display:flex;justify-content:space-between;margin-top:14px;padding-top:8px;border-top:1px solid #ccc">
+      <div style="text-align:center"><div style="border-top:1px solid #333;width:100px;margin:0 auto 3px"></div><div style="font-size:8px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl">Class Teacher Signature</div></div>
+      <div style="text-align:center"><div style="border-top:1px solid #333;width:100px;margin:0 auto 3px"></div><div style="font-size:8px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl">Head of Institution Signature</div></div>
+    </div>
+  </div>`;
+  openPrint(html,`Gazette — Class ${cls}`);
+}
+
+// ── SUBJECT REPORT ────────────────────────
+let SR={cls:1,term:'T1',si:null};
+function pgSubReport(){
+  const subs=SUBS[SR.cls]||[];
+  return`<div class="pg-head"><div><div class="pg-title">📚 Subject-wise Report</div>
+  <div class="pg-sub">Individual subject results with student ranking</div></div></div>
+  <div class="card"><h3>Select Class, Term &amp; Subject</h3>
+  <div class="fbar">
+    <div><label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">Class</label>
+    <select class="fsel" id="srCls" onchange="SR.cls=parseInt(this.value);SR.si=null;srRefSubs()">
+      ${[1,2,3,4,5,6,7,8].map(x=>`<option value="${x}" ${SR.cls===x?'selected':''}>Class ${x}</option>`).join('')}
+    </select></div>
+    <div><label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">Term</label>
+    <select class="fsel" id="srTrm" onchange="SR.term=this.value;SR.si=null">
+      <option value="T1" ${SR.term==='T1'?'selected':''}>First Term</option>
+      <option value="T2" ${SR.term==='T2'?'selected':''}>Mid Term</option>
+      <option value="FIN" ${SR.term==='FIN'?'selected':''}>Final Term</option>
+    </select></div>
+    <div><label style="font-size:11px;font-weight:700;display:block;margin-bottom:4px">Subject</label>
+    <select class="fsel" id="srSubj">
+      <option value="-1">-- All Subjects Summary --</option>
+      ${subs.map((s,i)=>`<option value="${i}">${s.en}</option>`).join('')}
+    </select></div>
+    <div style="display:flex;align-items:flex-end;gap:8px">
+      <button class="btn btn-g" onclick="buildSubReport()">📊 Generate</button>
+      <button class="btn btn-gold" onclick="printSubReport()">🖨️ Print</button>
+    </div>
+  </div></div>
+  <div id="srOut"></div>`;
+}
+function srRefSubs(){
+  const sel=document.getElementById('srSubj');if(!sel)return;
+  const subs=SUBS[SR.cls]||[];
+  sel.innerHTML='<option value="-1">-- All Subjects Summary --</option>'+subs.map((s,i)=>`<option value="${i}">${s.en}</option>`).join('');
+  document.getElementById('srOut').innerHTML='';
+}
+function buildSubReport(){
+  const cls=parseInt(document.getElementById('srCls')?.value||SR.cls);
+  const term=document.getElementById('srTrm')?.value||SR.term;
+  SR.cls=cls;SR.term=term;
+  const si=parseInt(document.getElementById('srSubj')?.value??'-1');
+  SR.si=si<0?null:si;
+  const tLbl=term==='T1'?'First Term':term==='T2'?'Mid Term':'Final Term';
+  const subs=SUBS[cls]||[];
+  const sts=STUDENTS.filter(s=>s.c===cls);
+  const out=document.getElementById('srOut');
+  if(si<0){
+    const rows=subs.map((sub,i)=>{
+      const mx=term==='T1'?sub.max1:term==='T2'?sub.max2:sub.maxF;
+      const vals=sts.map(s=>getMk(s.e,s.c,term,i));
+      const nums=vals.filter(v=>v!==''&&v!=='A').map(Number);
+      const absC=vals.filter(v=>v==='A').length;
+      const avg=nums.length?(nums.reduce((a,b)=>a+b,0)/nums.length).toFixed(1):'-';
+      const pass=nums.filter(m=>m>=mx*0.33).length;
+      const pr=nums.length?((pass/nums.length)*100).toFixed(0):0;
+      return{sub,i,mx,avg,hi:nums.length?Math.max(...nums):'-',lo:nums.length?Math.min(...nums):'-',pass,fail:nums.length-pass,absC,pr,tot:nums.length};
+    });
+    out.innerHTML=`<div class="card"><h3>Class ${cls} — ${tLbl} — All Subjects</h3>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>#</th><th>Subject</th><th>Teacher</th><th>Max</th><th>Avg</th><th>High</th><th>Low</th><th>Pass</th><th>Fail</th><th>Absent</th><th>Pass%</th><th>Detail</th></tr></thead>
+      <tbody>${rows.map((r,idx)=>`<tr>
+        <td>${idx+1}</td><td style="font-weight:700">${r.sub.en}</td>
+        <td style="text-align:center">${r.mx}</td>
+        <td style="text-align:center;color:#2980b9;font-weight:700">${r.avg}</td>
+        <td style="text-align:center;color:#1a6b3c;font-weight:700">${r.hi}</td>
+        <td style="text-align:center;color:#c0392b;font-weight:700">${r.lo}</td>
+        <td style="text-align:center;color:#1a6b3c;font-weight:700">${r.pass}</td>
+        <td style="text-align:center;color:#c0392b;font-weight:700">${r.fail}</td>
+        <td style="text-align:center">${r.absC}</td>
+        <td style="text-align:center">
+          <div style="display:flex;align-items:center;gap:5px">
+            <div style="flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${r.pr}%;background:${r.pr>=33?'#1a6b3c':'#c0392b'};border-radius:3px"></div>
+            </div><span style="font-weight:700;font-size:11px">${r.pr}%</span>
+          </div>
+        </td>
+        <td><button class="bx bx-g" onclick="document.getElementById('srSubj').value=${r.i};buildSubReport()">→ Detail</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div></div>`;
+  } else {
+    const sub=subs[si];if(!sub){showToast('Subject not found','err');return}
+    const mx=term==='T1'?sub.max1:term==='T2'?sub.max2:sub.maxF;
+    const res=sts.map(s=>{
+      const v=getMk(s.e,s.c,term,si);
+      const abs=v==='A';const obt=abs||v===''?null:parseFloat(v)||0;
+      const pct=obt!==null?parseFloat(((obt/mx)*100).toFixed(1)):null;
+      return{...s,abs,obt,pct,grade:pct!==null?getGrade(pct):'-'};
+    });
+    const sorted=[...res].sort((a,b)=>{
+      if(a.obt===null&&b.obt!==null)return 1;if(a.obt!==null&&b.obt===null)return-1;
+      return(b.obt||0)-(a.obt||0);
+    });
+    let rk=1;sorted.forEach((r,i)=>{
+      if(r.obt===null){r.rank='-';}
+      else{if(i>0&&sorted[i-1].obt===r.obt)r.rank=sorted[i-1].rank;else r.rank=rk;rk++;}
+    });
+    const nums=res.filter(r=>r.obt!==null).map(r=>r.obt);
+    const pass=nums.filter(m=>m>=mx*0.33).length;
+    const avg=nums.length?(nums.reduce((a,b)=>a+b,0)/nums.length).toFixed(1):0;
+    // Find assigned teacher for this subject+class
+    const assigned=TIMETABLE.find(t=>t.cls===cls&&t.subjIdx===si);
+    const teacherLabel=assigned?`Teacher: <strong>${assigned.teacherName}</strong>`:'Teacher: <em style="color:#888">Not assigned</em>';
+    out.innerHTML=`<div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div>
+          <h3 style="margin:0 0 4px 0">Class ${cls} — ${sub.en} — ${tLbl}</h3>
+          <div style="font-size:12px;color:#555">${teacherLabel}</div>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="document.getElementById('srSubj').value=-1;buildSubReport()">← Back to Summary</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-bottom:14px">
+        ${[{l:'Students',v:sts.length,c:'#1a6b3c'},{l:'Appeared',v:nums.length,c:'#2980b9'},
+           {l:'Absent',v:res.filter(r=>r.abs).length,c:'#c0392b'},{l:'Pass',v:pass,c:'#27ae60'},
+           {l:'Fail',v:nums.length-pass,c:'#e74c3c'},{l:'Average',v:avg,c:'#8e44ad'},
+           {l:'Pass Rate',v:nums.length?((pass/nums.length)*100).toFixed(0)+'%':'0%',c:'#f39c12'}
+          ].map(s=>`<div style="background:${s.c}18;border-left:3px solid ${s.c};padding:10px;border-radius:8px">
+            <div style="font-size:18px;font-weight:900;color:${s.c}">${s.v}</div>
+            <div style="font-size:10px;color:#666;margin-top:2px">${s.l}</div>
+          </div>`).join('')}
+      </div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Rank</th><th>Roll No</th><th>Student Name</th><th>Father</th>
+          <th>Marks (/${mx})</th><th>%</th><th>Grade</th><th>Status</th></tr></thead>
+        <tbody>${sorted.map(r=>`<tr style="background:${r.rank===1?'#fffde7':r.rank===2?'#f5f5f5':r.rank===3?'#fff3e0':''}">
+          <td style="text-align:center;font-weight:900;color:${r.rank<=3?'#f39c12':'#333'}">${r.rank}</td>
+          <td><span class="badge b-blue">${r.e}</span></td>
+          <td style="font-weight:700">${r.n}</td>
+          <td style="font-size:12px;color:#888">${r.f}</td>
+          <td style="text-align:center;font-weight:800;font-size:14px;color:${r.abs?'#c0392b':r.obt!==null?'#1a6b3c':'#888'}">${r.abs?'Absent':r.obt!==null?r.obt:'—'}</td>
+          <td style="text-align:center;font-weight:700">${r.pct!==null?r.pct+'%':'—'}</td>
+          <td style="text-align:center">${r.grade!=='-'?`<span style="background:${getGradeColor(r.grade)};color:#fff;padding:2px 8px;border-radius:12px;font-weight:900;font-size:12px">${r.grade}</span>`:'—'}</td>
+          <td style="text-align:center">${r.abs?'<span class="badge b-gold">Absent</span>':r.obt===null?'<span class="badge b-grey">Pending</span>':r.obt>=mx*0.33?'<span class="badge b-green">Pass</span>':'<span class="badge b-red">Fail</span>'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div></div>`;
+  }
+}
+function printSubReport(){
+  const out=document.getElementById('srOut');
+  if(!out||!out.innerHTML.trim()){showToast('Please generate report first!','warn');return}
+  const sch=getSch();
+  const tLbl=SR.term==='T1'?'First Term':SR.term==='T2'?'Mid Term':'Final Term';
+  const subName=SR.si!==null?(SUBS[SR.cls]||[])[SR.si]?.en||'':'All Subjects';
+  openPrint(`<div style="padding:16px;font-family:DM Sans,sans-serif">
+    <div style="text-align:center;border-bottom:3px solid #1a6b3c;padding-bottom:8px;margin-bottom:14px">
+      <div style="font-size:16px;font-weight:800;color:#1a6b3c">${sch.name}</div>
+      <div style="font-size:13px">Subject Report — Class ${SR.cls} — ${subName} — ${tLbl}</div>
+    </div>${out.innerHTML}</div>`,`Class ${SR.cls} ${subName} ${tLbl}`);
+}
+
+// ── ATTENDANCE ────────────────────────────
+let attCls=1,attMonth=new Date().toISOString().slice(0,7);
+
+function pgAttendance(){
+  const today=new Date();
+  const month=attMonth||today.toISOString().slice(0,7);
+  const[yr,mo]=month.split('-').map(Number);
+  const days=new Date(yr,mo,0).getDate();
+  const sts=STUDENTS.filter(s=>s.c===attCls);
+
+  const dayHeaders=Array.from({length:days},(_,i)=>i+1);
+
+  return`
+  <div class="pg-head"><div>
+    <div class="pg-title">📅 Attendance Sheet</div>
+    <div class="pg-sub">P = Present | A = Absent | L = Leave</div>
+  </div>
+  <div class="pg-actions">
+    <button class="btn btn-gold" onclick="printAttSheet()">🖨️ Print</button>
+  </div></div>
+  <div class="card">
+    <div class="fbar">
+      <select class="fsel" id="attClsSel" onchange="attCls=parseInt(this.value);nav('attendance')">
+        ${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}" ${attCls==c?'selected':''}>Class ${c}</option>`).join('')}
+      </select>
+      <input type="month" class="fsel" id="attMon" value="${month}" onchange="attMonth=this.value;nav('attendance')"/>
+      <div style="display:flex;gap:6px;margin-left:auto">
+        <span class="badge b-green">P = Present</span>
+        <span class="badge b-red">A = Absent</span>
+        <span class="badge b-gold">L = Leave</span>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table style="border-collapse:collapse;font-size:11px;min-width:900px">
+        <thead>
+          <tr>
+            <th style="background:#1a6b3c;color:#fff;padding:6px 8px;border:1px solid #555;min-width:160px">Student Name</th>
+            ${dayHeaders.map(d=>`<th style="background:#1a6b3c;color:#fff;padding:5px 2px;border:1px solid #555;width:28px;text-align:center;font-size:10px">${d}</th>`).join('')}
+            <th style="background:#1a6b3c;color:#fff;padding:6px 4px;border:1px solid #555">P</th>
+            <th style="background:#1a6b3c;color:#fff;padding:6px 4px;border:1px solid #555">A</th>
+            <th style="background:#1a6b3c;color:#fff;padding:6px 4px;border:1px solid #555">%</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${sts.map(s=>{
+            const key=`${s.e}_${s.c}_${month}`;
+            const attRow=ATTENDANCE[key]||{};
+            let pCnt=0,aCnt=0;
+            dayHeaders.forEach(d=>{const v=attRow[d]||'';if(v==='P')pCnt++;else if(v==='A')aCnt++;});
+            const pct=days>0?((pCnt/days)*100).toFixed(0):0;
+            return`<tr>
+              <td style="border:1px solid #ddd;padding:4px 6px;font-weight:600;white-space:nowrap">${s.n}</td>
+              ${dayHeaders.map(d=>{
+                const v=attRow[d]||'';
+                return`<td style="border:1px solid #ddd;padding:2px;text-align:center">
+                  <div class="att-cell ${v}" onclick="cycleAtt('${s.e}',${s.c},'${month}',${d},'${v}')" title="Day ${d}">${v}</div>
+                </td>`;
+              }).join('')}
+              <td style="border:1px solid #ddd;text-align:center;color:#1a6b3c;font-weight:700;padding:4px">${pCnt}</td>
+              <td style="border:1px solid #ddd;text-align:center;color:#c0392b;font-weight:700;padding:4px">${aCnt}</td>
+              <td style="border:1px solid #ddd;text-align:center;font-weight:700;padding:4px">${pct}٪</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function cycleAtt(e,c,month,day,cur){
+  const states=['','P','A','L'];
+  const next=states[(states.indexOf(cur)+1)%states.length];
+  const key=`${e}_${c}_${month}`;
+  if(!ATTENDANCE[key])ATTENDANCE[key]={};
+  ATTENDANCE[key][day]=next;
+  saveAtt();
+  // update cell without full re-render
+  const cells=document.querySelectorAll('.att-cell');
+  // find the cell — re-render the page section
+  nav('attendance');
+}
+function printAttSheet(){
+  const[yr,mo]=attMonth.split('-').map(Number);
+  const days=new Date(yr,mo,0).getDate();
+  const sts=STUDENTS.filter(s=>s.c===attCls);
+  const sch=getSch();
+  const html=`<div class="att-page">
+    <div style="text-align:center;border-bottom:2px solid #1a6b3c;padding-bottom:6px;margin-bottom:8px">
+      <div style="font-family:'Noto Nastaliq Urdu',serif;font-size:14px;font-weight:700;color:#1a6b3c;direction:rtl">${sch.name}</div>
+      <div style="font-family:'Noto Nastaliq Urdu',serif;direction:rtl">Attendance Sheet — Class ${attCls} — ${attMonth}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:7px">
+      <thead>
+        <tr>
+          <th style="background:#1a6b3c;color:#fff;padding:4px;border:1px solid #555;min-width:80px">Student Name</th>
+          ${Array.from({length:days},(_,i)=>`<th style="background:#1a6b3c;color:#fff;padding:2px;border:1px solid #555;width:14px;font-size:7px">${i+1}</th>`).join('')}
+          <th style="background:#1a6b3c;color:#fff;padding:4px;border:1px solid #555">P</th>
+          <th style="background:#1a6b3c;color:#fff;padding:4px;border:1px solid #555">A</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${sts.map((s,idx)=>{
+          const key=`${s.e}_${s.c}_${attMonth}`;
+          const row=ATTENDANCE[key]||{};
+          let p=0,a=0;
+          const dCells=Array.from({length:days},(_,i)=>{
+            const v=row[i+1]||'';
+            if(v==='P')p++;else if(v==='A')a++;
+            const bg=v==='P'?'#e8f5ee':v==='A'?'#fdecea':v==='L'?'#fef5e4':'';
+            return`<td style="border:1px solid #ccc;text-align:center;padding:2px;background:${bg};font-weight:700;font-size:7px">${v}</td>`;
+          }).join('');
+          return`<tr style="background:${idx%2===0?'#fff':'#f9f9f9'}">
+            <td style="border:1px solid #ccc;padding:3px 4px;font-weight:600;font-size:7px">${s.n}</td>
+            ${dCells}
+            <td style="border:1px solid #ccc;text-align:center;font-weight:700;color:#1a6b3c;font-size:7px">${p}</td>
+            <td style="border:1px solid #ccc;text-align:center;font-weight:700;color:#c0392b;font-size:7px">${a}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <div style="display:flex;justify-content:space-between;margin-top:12px">
+      <div style="text-align:center"><div style="border-top:1px solid #333;width:80px;margin:0 auto 2px"></div><div style="font-size:7px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl">Class Teacher Signature</div></div>
+      <div style="text-align:center"><div style="border-top:1px solid #333;width:80px;margin:0 auto 2px"></div><div style="font-size:7px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl">Head of Institution Signature</div></div>
+    </div>
+  </div>`;
+  openPrint(html,`Attendance Sheet — Class ${attCls}`);
+}
+
+// ── TEACHERS ─────────────────────────────
+function pgTeachers(){
+  return`
+  <div class="pg-head"><div>
+    <div class="pg-title">👩‍🏫 اساتذہ — Teachers</div>
+    <div class="pg-sub">${TEACHERS.length} اساتذہ</div>
+  </div>
+  <button class="btn btn-g" onclick="showAddTeacher()">+ استاد شامل کریں</button></div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Name</th><th>Subject</th><th>Class</th><th>Username</th><th>Role</th><th>Action</th></tr></thead>
+        <tbody>
+          ${TEACHERS.map(t=>`<tr>
+            <td><span class="badge b-blue">${t.id}</span></td>
+            <td style="font-weight:700">${t.name}</td>
+            <td>${t.subject}</td>
+            <td>${t.cls}</td>
+            <td style="font-size:12px;color:#888">${t.user}</td>
+            <td><span class="badge ${t.role==='admin'?'b-red':'b-green'}">${t.role}</span></td>
+            <td>
+              <button class="bx bx-b" onclick="editTeacher('${t.id}')">✏️ ترمیم</button>
+              <button class="bx bx-r" onclick="delTeacher('${t.id}')" style="margin-left:3px">🗑 حذف</button>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+function showAddTeacher(){
+  openModal('➕ Add Teacher',`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fgrp" style="grid-column:1/-1"><label>Teacher Name *</label><input class="finp" id="at_n" placeholder="Full name"/></div>
+      <div class="fgrp"><label>Subject</label><input class="finp" id="at_s" placeholder="e.g. English, Math"/></div>
+      <div class="fgrp"><label>Classes (e.g. 6,7,8)</label><input class="finp" id="at_c" placeholder="e.g. 6,7,8 or All"/></div>
+      <div class="fgrp"><label>Username *</label><input class="finp" id="at_u" placeholder="login username"/></div>
+      <div class="fgrp"><label>Password *</label><input class="finp" type="password" id="at_p" placeholder="password"/></div>
+      <div class="fgrp"><label>Role</label>
+        <select class="finp" id="at_r"><option value="teacher">Teacher</option><option value="admin">Admin</option></select>
+      </div>
+    </div>`,
+    `<button class="btn btn-grey" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-g" onclick="addTeacher()">شامل کریں ✓</button>`);
+}
+function addTeacher(){
+  const n=document.getElementById('at_n').value.trim();
+  const s=document.getElementById('at_s').value.trim();
+  const c=document.getElementById('at_c').value.trim();
+  const u=document.getElementById('at_u').value.trim();
+  const p=document.getElementById('at_p').value.trim();
+  const r=document.getElementById('at_r').value;
+  if(!n||!u||!p){showToast('Name, username and password required!','err');return}
+  if(TEACHERS.find(t=>t.user===u)){showToast('This username already exists!','err');return}
+  const id='T'+String(TEACHERS.length+1).padStart(3,'0');
+  TEACHERS.push({id,name:n.toUpperCase(),subject:s,cls:c||'All',user:u,pass:p,role:r});
+  saveTeachers();closeModal();showToast('Teacher added ✓');nav('teachers');
+}
+function editTeacher(id){
+  const t=TEACHERS.find(x=>x.id===id);if(!t)return;
+  openModal('✏️ Edit Teacher',`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fgrp" style="grid-column:1/-1"><label>Name</label><input class="finp" id="et_n" value="${t.name}"/></div>
+      <div class="fgrp"><label>مضمون</label><input class="finp" id="et_s" value="${t.subject}"/></div>
+      <div class="fgrp"><label>Class</label><input class="finp" id="et_c" value="${t.cls}"/></div>
+      <div class="fgrp"><label>Username</label><input class="finp" id="et_u" value="${t.user}"/></div>
+      <div class="fgrp"><label>New Password (leave blank to keep current)</label><input class="finp" type="password" id="et_p" placeholder="نیا پاس ورڈ"/></div>
+      <div class="fgrp"><label>Role</label>
+        <select class="finp" id="et_r"><option value="teacher" ${t.role==='teacher'?'selected':''}>Teacher</option><option value="admin" ${t.role==='admin'?'selected':''}>Admin</option></select>
+      </div>
+    </div>`,
+    `<button class="btn btn-grey" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-g" onclick="saveTeacher('${id}')">Save ✓</button>`);
+}
+function saveTeacher(id){
+  const idx=TEACHERS.findIndex(t=>t.id===id);if(idx<0)return;
+  const newPass=document.getElementById('et_p').value.trim();
+  TEACHERS[idx]={
+    ...TEACHERS[idx],
+    name:document.getElementById('et_n').value.trim().toUpperCase(),
+    subject:document.getElementById('et_s').value.trim(),
+    cls:document.getElementById('et_c').value.trim(),
+    user:document.getElementById('et_u').value.trim(),
+    role:document.getElementById('et_r').value,
+    ...(newPass?{pass:newPass}:{})
+  };
+  saveTeachers();closeModal();showToast('Saved ✓');nav('teachers');
+}
+function delTeacher(id){
+  if(!confirm('Are you sure you want to delete this teacher?'))return;
+  const idx=TEACHERS.findIndex(t=>t.id===id);
+  if(idx>=0){TEACHERS.splice(idx,1);saveTeachers();showToast('Deleted');nav('teachers')}
+}
+
+// ── TIMETABLE ────────────────────────────
+function pgTimetable(){
+  const sch=getSch();
+  const allSubs=(cls)=>(SUBS[cls]||[]).map((s,i)=>({...s,i}));
+  return`
+  <div class="pg-head">
+    <div><div class="pg-title">📆 Timetable — Teacher Subject Assignment</div>
+    <div class="pg-sub">Assign which teacher teaches which subject in each class</div></div>
+    <button class="btn btn-g" onclick="showAddAssignment()">+ Add Assignment</button>
+  </div>
+
+  <!-- Visual timetable like image: teachers vs periods -->
+  <div class="card">
+    <h3>📋 Current Assignments</h3>
+    ${TIMETABLE.length===0?'<div style="text-align:center;padding:24px;color:#aaa">No assignments yet. Click + Add Assignment to start.</div>':''}
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Teacher</th><th>Subject</th><th>Class</th><th>Action</th></tr></thead>
+      <tbody>
+        ${TIMETABLE.map((t,i)=>`<tr>
+          <td>${i+1}</td>
+          <td style="font-weight:700">${t.teacherName}</td>
+          <td><span class="badge b-blue">${t.subjName}</span></td>
+          <td><span class="badge b-green">Class ${t.cls}</span></td>
+          <td>
+            <button class="bx bx-r" onclick="delAssignment(${i})">🗑 Remove</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- Period-wise timetable grid -->
+  <div class="card">
+    <h3>📅 Teacher-wise Class Summary</h3>
+    <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>Teacher</th>
+        ${[1,2,3,4,5,6,7,8].map(c=>`<th>Class ${c}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${[...new Set(TIMETABLE.map(t=>t.teacherName))].map(name=>`<tr>
+          <td style="font-weight:700;white-space:nowrap">${name}</td>
+          ${[1,2,3,4,5,6,7,8].map(cls=>{
+            const asgns=TIMETABLE.filter(t=>t.teacherName===name&&t.cls===cls);
+            return`<td style="font-size:11px;color:#1a6b3c">${asgns.map(a=>a.subjName).join('<br>')||'—'}</td>`;
+          }).join('')}
+        </tr>`).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
+function showAddAssignment(){
+  const teacherOpts=TEACHERS.map(t=>`<option value="${t.user}|${t.name}">${t.name}</option>`).join('');
+  openModal('➕ Add Subject Assignment',`
+    <div class="fgrp"><label>Teacher</label>
+      <select class="finp" id="at_teacher">${teacherOpts}</select>
+    </div>
+    <div class="fgrp"><label>Class</label>
+      <select class="finp" id="at_cls" onchange="refreshAtSubjects()">
+        ${[1,2,3,4,5,6,7,8].map(c=>`<option value="${c}">Class ${c}</option>`).join('')}
+      </select>
+    </div>
+    <div class="fgrp"><label>Subject</label>
+      <select class="finp" id="at_subj">
+        ${(SUBS[1]||[]).map((s,i)=>`<option value="${i}|${s.en}">${s.en}</option>`).join('')}
+      </select>
+    </div>`,
+    `<button class="btn btn-grey" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-g" onclick="saveAssignment()">Assign ✓</button>`);
+}
+function refreshAtSubjects(){
+  const cls=parseInt(document.getElementById('at_cls')?.value||1);
+  const sel=document.getElementById('at_subj');if(!sel)return;
+  sel.innerHTML=(SUBS[cls]||[]).map((s,i)=>`<option value="${i}|${s.en}">${s.en}</option>`).join('');
+}
+function saveAssignment(){
+  const tVal=document.getElementById('at_teacher')?.value||'';
+  const cls=parseInt(document.getElementById('at_cls')?.value||1);
+  const sVal=document.getElementById('at_subj')?.value||'';
+  if(!tVal||!sVal){showToast('Select teacher and subject!','err');return}
+  const [tUser,tName]=tVal.split('|');
+  const [si,sName]=sVal.split('|');
+  // Check duplicate
+  if(TIMETABLE.some(t=>t.user===tUser&&t.cls===cls&&t.subjIdx===parseInt(si))){
+    showToast('Assignment already exists!','warn');return
+  }
+  TIMETABLE.push({user:tUser,teacherName:tName,cls,subjIdx:parseInt(si),subjName:sName});
+  saveTimetable();closeModal();showToast('Assignment saved ✓');nav('timetable');
+}
+function delAssignment(idx){
+  if(!confirm('Remove this assignment?'))return;
+  TIMETABLE.splice(idx,1);saveTimetable();showToast('Removed');nav('timetable');
+}
+
+// ── SETTINGS ─────────────────────────────
+function pgSettings(){
+  const sch=getSch();
+  const isAdmin=CU.role==='admin';
+  const dis=isAdmin?'':'disabled';
+  return`
+  <div class="pg-head"><div>
+    <div class="pg-title">⚙️ Settings</div>
+  </div>
+  ${isAdmin?'<span class="badge b-green" style="font-size:13px">Admin — Full Access</span>':'<span class="badge b-gold">Teacher — View Only</span>'}
+  </div>
+  <div class="card">
+    <h3>🏫 School Information</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      <div class="fgrp" style="grid-column:1/-1">
+        <label>School Name</label>
+        <input class="finp" id="set_n" value="${sch.name}" ${dis} style="${dis?'background:#f5f5f5':''}"/>
+      </div>
+      <div class="fgrp"><label>District</label>
+        <input class="finp" id="set_d" value="${sch.dist}" ${dis} style="${dis?'background:#f5f5f5':''}"/></div>
+      <div class="fgrp"><label>EMIS Code</label>
+        <input class="finp" id="set_e" value="${sch.emis}" ${dis} style="${dis?'background:#f5f5f5':''}"/></div>
+      <div class="fgrp" style="grid-column:1/-1"><label>Session</label>
+        <input class="finp" id="set_s" value="${sch.session}" ${dis} style="${dis?'background:#f5f5f5':''}"/></div>
+    </div>
+    ${isAdmin?`<button class="btn btn-g" onclick="applySettings()">💾 Save Changes</button>`
+    :`<p style="color:#f39c12;font-size:13px;margin-top:8px">⚠️ Only Admin can change settings.</p>`}
+  </div>
+  <div class="card">
+    <h3>🔗 Google Sheets Connection</h3>
+    <p style="font-size:12px;color:#666;margin-bottom:12px">Paste your Google Apps Script Web App URL below. Marks entered by teachers will auto-save to your Google Sheet instantly.</p>
+    <div class="fgrp"><label>Apps Script Web App URL</label>
+    <input class="finp" id="gasUrlInp" placeholder="https://script.google.com/macros/s/..." value="${localStorage.getItem('sba_gas_url')||''}"/>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-g" onclick="saveGasUrl()">💾 Save URL</button>
+      <button class="btn btn-blue" onclick="testGasUrl()">🔌 Test Connection</button>
+    </div>
+    <div id="gasTestResult" style="margin-top:8px;font-size:12px;font-weight:600"></div>
+  </div>
+  <div class="card">
+    <h3>🔑 Change Password</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+      <div class="fgrp"><label>Old Password</label><input class="finp" type="password" id="cp_o" placeholder="Current password"/></div>
+      <div class="fgrp"><label>New Password</label><input class="finp" type="password" id="cp_n" placeholder="New password"/></div>
+      <div class="fgrp"><label>Confirm</label><input class="finp" type="password" id="cp_c" placeholder="Repeat new"/></div>
+    </div>
+    <button class="btn btn-g" onclick="changePW()">Update Password</button>
+  </div>
+  ${isAdmin?`
+  <div class="card">
+    <h3>🔒 Term Lock Management</h3>
+    <p style="font-size:12px;color:#666;margin-bottom:14px">Lock a term to prevent teachers from entering or editing marks. Only Admin can unlock.</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      ${['T1','T2','FIN'].map(t=>{
+        const lbl=t==='T1'?'First Term':t==='T2'?'Mid Term':'Final Term';
+        const locked=TERM_LOCKS[t];
+        return`<div style="flex:1;min-width:140px;border:2px solid ${locked?'#c0392b':'#1a6b3c'};border-radius:10px;padding:14px;text-align:center">
+          <div style="font-weight:800;font-size:15px;margin-bottom:6px">${lbl}</div>
+          <div style="font-size:22px;margin-bottom:8px">${locked?'🔒':'🔓'}</div>
+          <div style="font-size:12px;color:${locked?'#c0392b':'#1a6b3c'};font-weight:700;margin-bottom:10px">${locked?'LOCKED':'UNLOCKED'}</div>
+          <button class="btn ${locked?'btn-g':'btn-red'} btn-sm" onclick="toggleTermLock('${t}')">${locked?'🔓 Unlock':'🔒 Lock'}</button>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`:''}
+  <div class="card">
+    <h3>💾 Data Backup</h3>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-blue" onclick="exportData()">⬇ Export JSON</button>
+      <button class="btn btn-g" onclick="document.getElementById('impFile').click()">⬆ Import JSON</button>
+    </div>
+    <input type="file" id="impFile" accept=".json" style="display:none" onchange="importData(this)"/>
+  </div>
+  <div class="card" style="background:#fff8e6;border:1px solid #f39c12">
+    <h3>📱 Developer</h3>
+    <div style="font-size:14px"><strong>MALIK NAVEED</strong><br>GHS Chak No. 10 NB, Bhalwal, Sargodha<br>
+    📱 <strong style="color:#c0392b">+92-333-9815632</strong></div>
+    <a href="https://wa.me/923339815632" target="_blank" class="btn btn-g" style="margin-top:12px;background:#25d366;display:inline-flex">💬 WhatsApp</a>
+  </div>`;
+}
+function applySettings(){
+  saveSch({
+    name:document.getElementById('set_n').value.trim(),
+    dist:document.getElementById('set_d').value.trim(),
+    emis:document.getElementById('set_e').value.trim(),
+    session:document.getElementById('set_s').value.trim()
+  });showToast('Settings saved ✓');
+}
+function changePW(){
+  const o=document.getElementById('cp_o').value;
+  const n=document.getElementById('cp_n').value;
+  const c=document.getElementById('cp_c').value;
+  if(!o||!n){showToast('Fill all fields!','err');return}
+  if(n!==c){showToast('Passwords do not match!','err');return}
+  if(CU.role==='admin'&&o!==USERS.admin.pass){showToast('Old password incorrect!','err');return}
+  USERS[CU.role].pass=n;showToast('Password changed ✓');
+}
+function exportData(){
+  const data={marks:MARKS,students:STUDENTS.filter(s=>!ALL_STUDENTS.find(a=>a.e===s.e&&a.c===s.c)),teachers:TEACHERS,attendance:ATTENDANCE,settings:getSch()};
+  const a=document.createElement('a');a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(data,null,2));
+  a.download=`sba_backup_${Date.now()}.json`;a.click();showToast('Data exported ✓');
+}
+function importData(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.marks)MARKS={...MARKS,...d.marks};
+      if(d.teachers)TEACHERS=[...TEACHERS,...d.teachers.filter(t=>!TEACHERS.find(x=>x.id===t.id))];
+      if(d.attendance)ATTENDANCE={...ATTENDANCE,...d.attendance};
+      if(d.settings)saveSch(d.settings);
+      localStorage.setItem('sba_marks',JSON.stringify(MARKS));saveTeachers();saveAtt();
+      showToast('Import complete ✓');nav('dashboard');
+    }catch{showToast('Invalid file format!','err')}
+  };r.readAsText(f);inp.value='';
+}
+
+// ══════════════════════════════════════════
+// RESULT CARD — exact match to uploaded image
+// ══════════════════════════════════════════
+function printCard(e,c){
+  const s=STUDENTS.find(x=>x.e===e&&x.c===c);
+  if(!s){showToast('Student not found!','err');return}
+  const termEl=document.getElementById('rcTrm');
+  const term=termEl?termEl.value:(mTerm||'T1');
+  openPrint(buildRC(s,term),`${s.n} — رزلٹ کارڈ`);
+}
+
+// Convert date to Urdu words (e.g. "07-SEP-16" → "سات ستمبر دو ہزار سولہ")
+function dobWords(dob){
+  if(!dob||dob.length<6)return'——';
+  try{
+    const months_ur={JAN:'جنوری',FEB:'فروری',MAR:'مارچ',APR:'اپریل',MAY:'مئی',JUN:'جون',
+                     JUL:'جولائی',AUG:'اگست',SEP:'ستمبر',OCT:'اکتوبر',NOV:'نومبر',DEC:'دسمبر'};
+    const d1=['','ایک','دو','تین','چار','پانچ','چھ','سات','آٹھ','نو','دس',
+              'گیارہ','بارہ','تیرہ','چودہ','پندرہ','سولہ','سترہ','اٹھارہ','انیس','بیس',
+              'اکیس','بائیس','تئیس','چوبیس','پچیس','چھبیس','ستائیس','اٹھائیس','انتیس','تیس',
+              'اکتیس'];
+    const parts=dob.split('-');
+    if(parts.length<3)return'——';
+    const day=parseInt(parts[0]);
+    const monKey=parts[1].toUpperCase().substring(0,3);
+    const yr=parts[2].length===2?'20'+parts[2]:parts[2];
+    const y=parseInt(yr);
+    const mon_word=months_ur[monKey]||'';
+    const day_word=d1[day]||'';
+    // Year to Urdu: e.g. 2016 → دو ہزار سولہ
+    const thou=Math.floor(y/1000);
+    const rem=y%1000;
+    const hundreds=Math.floor(rem/100);
+    const tens=rem%100;
+    const thou_w=d1[thou]||'';
+    const hun_w=hundreds>0?(d1[hundreds]+' سو'):'';
+    const ten_w=d1[tens]||'';
+    const yr_word=[thou_w,'ہزار',hun_w,ten_w].filter(Boolean).join(' ');
+    return [day_word,mon_word,yr_word].filter(Boolean).join(' ');
+  }catch(e){return'——';}
+}
+
+function buildRC(student,term){
+  const sch=getSch();
+  const cls=student.c;
+  const subs=SUBS[cls]||[];
+  const tUrdu=term==='T1'?'First Term':term==='T2'?'Mid Term':'اینڈ آف ائیر فائنل ٹرم';
+  const tEn=term==='T1'?'First Term':term==='T2'?'Mid Term':'End of Year Final Term';
+
+  function termObt(t){return subs.reduce((a,_,i)=>{const v=getMk(student.e,cls,t,i);return a+(v&&v!=='A'?parseFloat(v)||0:0)},0)}
+  function termMax(t){return subs.reduce((a,sub)=>{const m=t==='T1'?sub.max1:t==='T2'?sub.max2:sub.maxF;return a+m},0)}
+
+  const t1O=termObt('T1'),t1M=termMax('T1');
+  const t2O=termObt('T2'),t2M=termMax('T2');
+  const fnO=termObt('FIN'),fnM=termMax('FIN');
+  const grandO=t1O+t2O+fnO,grandM=t1M+t2M+fnM;
+  const grandPct=grandM>0?parseFloat(((grandO/grandM)*100).toFixed(1)):0;
+  const grade=getGrade(grandPct);
+  const gColor=getGradeColor(grade);
+  const rmk=localStorage.getItem('rmk_'+student.e)||REMARKS[grade]||'';
+  const today=new Date().toLocaleDateString('en-PK',{day:'2-digit',month:'short',year:'numeric'});
+
+  const gradeRows=[
+    {g:'A+',l:'80% اور زیادہ'},{g:'A',l:'79% تا 70%'},
+    {g:'B',l:'69% تا 60%'},{g:'C',l:'59% تا 50%'},
+    {g:'D',l:'49% تا 40%'},{g:'E',l:'39% تا 33%'}
+  ];
+  const hasAkh=subs.some(s=>s.ur==='اخلاقیات');
+
+  // Empty rows to fill table to 12 rows like image
+  const emptyCount=Math.max(0,12-subs.length);
+
+  return`
+<div class="rc-page">
+  <!-- Top strip -->
+  <div class="rc-topstrip"></div>
+
+  <div class="rc-inner">
+    <!-- HEADER -->
+    <div class="rc-hdr">
+      <div class="rc-hdr-title">رپورٹ کارڈ برائے تعلیمی سال ${sch.session}</div>
+      <div class="rc-hdr-year">${sch.name} | ${tUrdu}</div>
+      <div class="rc-hdr-pectaa">PECTAA | Transformation, Innovation &amp; Excellence</div>
+    </div>
+
+    <!-- STUDENT INFO — underline rows like image -->
+    <table class="rc-info-tbl">
+      <tr>
+        <td class="lbl">:سکول کا نام</td>
+        <td class="val" style="min-width:140px">${sch.name}</td>
+        <td class="lbl" style="padding-right:10px">:ضلع</td>
+        <td class="val" style="min-width:80px">${sch.dist}</td>
+        <td class="lbl" style="padding-right:10px">:تاریخ</td>
+        <td class="val">${today}</td>
+      </tr>
+      <tr>
+        <td class="lbl">:نام طالب علم</td>
+        <td class="val val-name" colspan="3">${student.n}</td>
+        <td class="lbl">:ولدیت</td>
+        <td class="val">${student.f}</td>
+      </tr>
+      <tr>
+        <td class="lbl">:ب فارم نمبر</td>
+        <td class="val">${student.b||'——————'}</td>
+        <td class="lbl" style="padding-right:10px">:جماعت</td>
+        <td class="val">${student.c}</td>
+        <td class="lbl">:رول نمبر</td>
+        <td class="val">${student.e}</td>
+      </tr>
+      <tr>
+        <td class="lbl">:تاریخ پیدائش (ہندسوں میں)</td>
+        <td class="val">${student.d||'——'}</td>
+        <td class="lbl" style="direction:rtl;font-family:'Noto Nastaliq Urdu',serif">:تاریخ پیدائش (لفظوں میں)</td>
+        <td class="val" colspan="3" style="font-family:'Noto Nastaliq Urdu',serif;direction:rtl;font-size:10px">${dobWords(student.d)}</td>
+      </tr>
+    </table>
+
+    <!-- MARKS TABLE — exact match to image -->
+    <table class="rc-tbl">
+      <colgroup>
+        <col style="width:22%"/> <!-- مضامین -->
+        <!-- First Term -->
+        <col style="width:6%"/><col style="width:8%"/><col style="width:8%"/>
+        <!-- Mid Term -->
+        <col style="width:6%"/><col style="width:8%"/><col style="width:8%"/>
+        <!-- Final Term -->
+        <col style="width:7%"/><col style="width:9%"/><col style="width:9%"/>
+        <!-- نمبر شمار R -->
+        <col style="width:5%"/>
+      </colgroup>
+      <thead>
+        <tr>
+          <th class="rh1" rowspan="2">مضامین</th>
+          <th class="rh1" colspan="3" style="background:#39b54a">فرسٹ ٹرم</th>
+          <th class="rh1" colspan="3" style="background:#2d9e43">مڈ ٹرم</th>
+          <th class="rh1" colspan="3" style="background:#1a6b3c">فائنل / اینڈ آف ائیر ٹرم</th>
+          <th class="rh1" rowspan="2" style="font-size:8px">نمبر</th>
+        </tr>
+        <tr>
+          <th class="rh2">کل نمبر</th><th class="rh2">مضامین میں کارکردگی</th><th class="rh2">حاصل کردہ نمبر</th>
+          <th class="rh2">کل نمبر</th><th class="rh2">مضامین میں کارکردگی</th><th class="rh2">حاصل کردہ نمبر</th>
+          <th class="rh2">کل نمبر</th><th class="rh2">مضامین میں کارکردگی</th><th class="rh2">حاصل کردہ نمبر</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${subs.map((sub,i)=>{
+          const t1v=getMk(student.e,cls,'T1',i);
+          const t2v=getMk(student.e,cls,'T2',i);
+          const fv=getMk(student.e,cls,'FIN',i);
+          const fmt=v=>v===''?'&nbsp;':v==='A'?'Abs':v;
+          const rc=i%2===0?'rA':'rB';
+          return`<tr class="${rc}">
+            <td class="subj">${sub.ur}</td>
+            <td style="font-weight:700">${sub.max1}</td><td></td><td>${fmt(t1v)}</td>
+            <td style="font-weight:700">${sub.max2}</td><td></td><td>${fmt(t2v)}</td>
+            <td style="font-weight:700">${sub.maxF}</td><td></td><td>${fmt(fv)}</td>
+            <td class="sno">${i+1}</td>
+          </tr>`;
+        }).join('')}
+        ${Array.from({length:emptyCount},(_,i)=>`<tr style="height:18px;background:${(subs.length+i)%2===0?'#fff':'#f5fbf5'}">
+          <td class="subj">&nbsp;</td>
+          <td></td><td></td><td></td>
+          <td></td><td></td><td></td>
+          <td></td><td></td><td></td>
+          <td class="sno">${subs.length+i+1}</td>
+        </tr>`).join('')}
+        <tr class="r-tot">
+          <td class="subj" style="background:#1a6b3c;color:#fff;font-weight:700">مجموعی نتیجہ</td>
+          <td>${t1M}</td><td></td><td style="font-weight:900">${t1O}</td>
+          <td>${t2M}</td><td></td><td style="font-weight:900">${t2O}</td>
+          <td>${fnM}</td><td></td><td style="font-weight:900">${fnO}</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- BOTTOM SECTION -->
+    <div class="rc-bot">
+      <!-- Grading formula box (left in RTL = right side) -->
+      <div class="rc-grd-box">
+        <div class="rc-grd-ttl">گریڈنگ فارمولا</div>
+        ${gradeRows.map(g=>`<div class="rc-grd-row${g.g===grade?' hi':''}">
+          <span class="gval">${g.g}</span>
+          <span class="glabel">${g.l}</span>
+        </div>`).join('')}
+      </div>
+
+      <!-- Akhlaqiyat note (middle) -->
+      <div class="rc-akh">
+        ${hasAkh
+          ? 'اخلاقیات کے پرچے کے حاصل کردہ نمبر کو 1.5 سے ضرب دی جائے گی اور حاصل کردہ نمبر کو مجموعی کل نمبر 150 میں سے دیا جائے گا'
+          : '&nbsp;'}
+        <div style="margin-top:8px;border:1px solid #1a6b3c;border-radius:5px;padding:6px">
+          <div style="font-weight:700;color:#1a6b3c;margin-bottom:4px">کلاس ٹیچر کے تاثرات:</div>
+          <div style="border-bottom:1px solid #bbb;min-height:14px;margin-bottom:4px;font-size:8px">${rmk}</div>
+          <div style="border-bottom:1px solid #bbb;min-height:14px;margin-bottom:4px"></div>
+          <div style="border-bottom:1px solid #bbb;min-height:14px"></div>
+        </div>
+        <!-- Result summary -->
+        <div style="margin-top:8px;border:1px solid #1a6b3c;border-radius:5px;padding:6px">
+          <table style="width:100%;font-size:9px">
+            <tr><td style="font-weight:700">حاصل کردہ نمبر:</td><td style="font-weight:800;color:#1a6b3c;font-size:12px">${grandO} / ${grandM}</td></tr>
+            <tr><td style="font-weight:700">فیصد:</td><td style="font-weight:800;color:#c0392b">${grandPct}%</td></tr>
+            <tr><td style="font-weight:700">گریڈ:</td><td style="font-weight:900;font-size:20px;color:${gColor};line-height:1">${grade}</td></tr>
+            <tr><td style="font-weight:700">نتیجہ:</td><td style="font-weight:800;color:${grandPct>=33?'#1a6b3c':'#c0392b'}">${grandPct>=33?'Pass ✓':'Fail ✗'}</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIGNATURES -->
+    <div class="rc-sigs">
+      <div class="rc-sig">
+        <div class="rc-sig-line"></div>
+        <div class="rc-sig-lbl">Head of Institution Signature</div>
+      </div>
+      <div class="rc-sig">
+        <div class="rc-sig-line"></div>
+        <div class="rc-sig-lbl">Class Teacher Signature</div>
+      </div>
+    </div>
+
+    <!-- Footer ribbon -->
+    <div class="rc-foot">
+      بچے قوم کا قیمتی سرمایہ ہیں، ان کے روشن مستقبل کے لیے انہیں زیور تعلیم سے آراستہ کرنے میں اپنا بھرپور Role ادا کریں۔
+    </div>
+  </div><!-- /rc-inner -->
+
+  <!-- Bottom strip -->
+  <div class="rc-botstrip"></div>
+</div>`;
+}
+
+// ══════════════════════════════════════════
+// PRINT / MODAL / TOAST
+// ══════════════════════════════════════════
+function openPrint(html,title=''){
+  document.getElementById('printTitle').textContent=title||'Print Preview';
+  document.getElementById('printContent').innerHTML=html;
+  const ov=document.getElementById('printOverlay');
+  ov.classList.remove('hidden');
+  ov.style.display='flex';
+}
+function closePrint(){
+  const ov=document.getElementById('printOverlay');
+  ov.classList.add('hidden');
+  ov.style.display='';
+  document.getElementById('printContent').innerHTML='';
+}
+function doPrint(){
+  // Use a new window for reliable cross-browser printing & PDF save
+  const content=document.getElementById('printContent').innerHTML;
+  const printWin=window.open('','_blank','width=900,height=700');
+  if(!printWin){
+    window.print();
+    return;
+  }
+  const pw_html=`<!DOCTYPE html><html><head>
+    <meta charset="UTF-8"/>
+    <title>SBA Result Card — MALIK NAVEED</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0}
+      body{background:#e8e8e8;font-family:'DM Sans',sans-serif}
+      @page{size:A4 portrait;margin:0}
+      @page landscape{size:A4 landscape;margin:0}
+      @media print{
+        body{background:white}
+        .rc-page,.gazette-page,.att-page{box-shadow:none!important;margin:0!important}
+      }
+      /* Result Card */
+      .rc-page{width:210mm;min-height:295mm;margin:10px auto;background:#fff;padding:0;
+        font-family:'Noto Nastaliq Urdu','DM Sans',Arial,sans-serif;font-size:10px;color:#000;
+        direction:rtl;position:relative;box-shadow:0 4px 24px rgba(0,0,0,.18);
+        page-break-after:always;page-break-inside:avoid;display:flex;flex-direction:column}
+      .rc-page::after{content:"SBA";position:absolute;top:50%;left:50%;
+        transform:translate(-50%,-50%) rotate(-35deg);font-size:170px;font-weight:900;
+        letter-spacing:8px;color:rgba(26,107,60,.04);pointer-events:none;z-index:0;font-family:'DM Sans'}
+      .rc-topstrip{height:16px;flex-shrink:0;background:linear-gradient(90deg,#1a6b3c,#39b54a,#8dc63f)}
+      .rc-inner{padding:7mm 10mm 5mm;flex:1;position:relative;z-index:1;display:flex;flex-direction:column}
+      .rc-hdr{text-align:center;border-bottom:3px solid #1a6b3c;padding-bottom:7px;margin-bottom:7px}
+      .rc-hdr-title{font-family:'Noto Nastaliq Urdu',serif;font-size:22px;font-weight:700;color:#1a6b3c;direction:rtl;line-height:1.6}
+      .rc-hdr-year{font-family:'Noto Nastaliq Urdu',serif;font-size:12px;color:#333;direction:rtl;margin-top:2px}
+      .rc-hdr-pectaa{font-size:8.5px;color:#777;margin-top:2px;direction:ltr}
+      .rc-info-tbl{width:100%;border-collapse:collapse;margin-bottom:7px;font-size:10.5px;direction:rtl}
+      .rc-info-tbl td{padding:4px 5px;border-bottom:1px solid #aaa;vertical-align:bottom}
+      .rc-info-tbl .lbl{font-family:'Noto Nastaliq Urdu',serif;font-weight:700;color:#111;white-space:nowrap;width:13%}
+      .rc-info-tbl .val{color:#111;min-width:80px}
+      .rc-info-tbl .val-name{font-weight:800;color:#1a6b3c;font-size:12px}
+      .rc-tbl{width:100%;border-collapse:collapse;margin-bottom:7px;direction:rtl;table-layout:fixed;font-size:9px}
+      .rc-tbl th,.rc-tbl td{border:1px solid #333;padding:3px 2px;text-align:center;vertical-align:middle}
+      .rc-tbl .rh1{background:#1a6b3c;color:#fff;font-family:'Noto Nastaliq Urdu',serif;font-weight:700;font-size:9.5px;direction:rtl}
+      .rc-tbl .rh2{background:#c8e6c9;color:#1a6b3c;font-family:'Noto Nastaliq Urdu',serif;font-weight:700;font-size:8.5px;direction:rtl}
+      .rc-tbl .subj{text-align:right;padding:3px 5px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl;white-space:normal;word-break:break-word;font-size:9px;font-weight:600}
+      .rc-tbl .sno{font-weight:900;font-size:9px;color:#1a6b3c;background:#f0f7f0}
+      .rc-tbl .rA{background:#fff}.rc-tbl .rB{background:#f5fbf5}
+      .rc-tbl .r-tot{background:#1a6b3c;color:#fff;font-weight:700}
+      .rc-tbl .r-tot .subj{background:#1a6b3c;color:#fff;font-family:'Noto Nastaliq Urdu',serif}
+      .rc-bot{display:flex;gap:7px;margin-bottom:7px;direction:rtl}
+      .rc-grd-box{flex:0 0 112px;border:2px solid #1a6b3c;border-radius:6px;padding:6px}
+      .rc-grd-ttl{font-family:'Noto Nastaliq Urdu',serif;direction:rtl;font-weight:700;color:#1a6b3c;margin-bottom:4px;font-size:10px;text-align:right}
+      .rc-grd-row{display:flex;justify-content:space-between;align-items:center;padding:2px 3px;border-radius:3px;font-size:9px;direction:rtl;margin-bottom:1px}
+      .rc-grd-row .glabel{font-family:'Noto Nastaliq Urdu',serif;font-size:9px}
+      .rc-grd-row.hi{background:#1a6b3c;color:#fff}
+      .rc-grd-row .gval{font-weight:900;font-size:10px;min-width:22px;text-align:left}
+      .rc-akh{flex:1.4;border:2px solid #1a6b3c;border-radius:6px;padding:6px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl;font-size:8.5px;color:#333;line-height:1.8;text-align:right}
+      .rc-sigs{display:flex;justify-content:space-between;margin-top:12px;padding-top:7px;border-top:1px solid #999;direction:rtl}
+      .rc-sig{text-align:center}
+      .rc-sig-line{border-top:1px solid #222;width:110px;margin:0 auto 4px}
+      .rc-sig-lbl{font-family:'Noto Nastaliq Urdu',serif;direction:rtl;font-size:9px;color:#333}
+      .rc-foot{background:#f1c40f;color:#fff;text-align:center;padding:5px 8px;border-radius:4px;margin-top:8px;font-family:'Noto Nastaliq Urdu',serif;direction:rtl;font-size:9.5px;font-weight:700;line-height:1.5}
+      .rc-botstrip{height:14px;background:linear-gradient(90deg,#1a6b3c,#39b54a,#8dc63f);margin-top:auto;flex-shrink:0}
+      /* Gazette */
+      .gazette-page{width:297mm;margin:10px auto;background:#fff;padding:8mm 10mm;font-size:8.5px;box-shadow:0 4px 20px rgba(0,0,0,.15);page-break-after:always;page-break-inside:avoid}
+      .gazette-page table{width:100%;border-collapse:collapse;font-size:7.5px}
+      .gazette-page th{background:#1a6b3c;color:#fff;padding:4px 3px;border:1px solid #555;text-align:center;font-size:7px}
+      .gazette-page td{padding:3px;border:1px solid #ccc;text-align:center;vertical-align:middle}
+      /* Attendance */
+      .att-page{width:297mm;margin:10px auto;background:#fff;padding:8mm;font-size:9px;box-shadow:0 4px 20px rgba(0,0,0,.15);page-break-after:always}
+    </style>
+  </head><body>${content}</body></html>`;
+  printWin.document.write(pw_html);
+  printWin.document.close();
+  // Wait for fonts then print
+  printWin.onload=function(){
+    setTimeout(()=>{
+      printWin.focus();
+      printWin.print();
+    },800);
+  };
+  // Fallback timeout
+  setTimeout(()=>{
+    try{printWin.focus();printWin.print();}catch(e){}
+  },1500);
+}
+
+function openModal(title,body,foot=''){
+  document.getElementById('mTitle').textContent=title;
+  document.getElementById('mBody').innerHTML=body;
+  document.getElementById('mFoot').innerHTML=foot;
+  document.getElementById('modal').classList.remove('hidden');
+}
+function closeModal(){document.getElementById('modal').classList.add('hidden')}
+
+let toastT;
+function showToast(msg,type=''){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type?' '+type:'');
+  t.classList.remove('hidden');clearTimeout(toastT);
+  toastT=setTimeout(()=>t.classList.add('hidden'),3200);
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function toggleTermLock(t){
+  TERM_LOCKS[t]=!TERM_LOCKS[t];
+  saveTermLocks();
+  const lbl=t==='T1'?'First Term':t==='T2'?'Mid Term':'Final Term';
+  showToast(`${lbl} ${TERM_LOCKS[t]?'LOCKED 🔒':'UNLOCKED 🔓'}`);
+  nav('settings');
+}
+function saveGasUrl(){
+  const url=document.getElementById('gasUrlInp')?.value?.trim()||'';
+  localStorage.setItem('sba_gas_url',url);
+  GAS_URL=url;
+  showToast('Google Sheets URL saved ✓');
+}
+async function testGasUrl(){
+  const url=document.getElementById('gasUrlInp')?.value?.trim()||'';
+  const el=document.getElementById('gasTestResult');
+  if(!url){el.innerHTML='<span style="color:#c0392b">Please enter URL first</span>';return}
+  el.innerHTML='⏳ Testing connection...';
+  try{
+    const r=await fetch(url+'?action=ping');
+    const d=await r.json();
+    if(d.ok)el.innerHTML='<span style="color:#1a6b3c">✅ Connected! '+d.msg+'</span>';
+    else el.innerHTML='<span style="color:#c0392b">❌ Error: '+d.error+'</span>';
+  }catch(e){el.innerHTML='<span style="color:#c0392b">❌ Could not connect. Check URL and deployment settings.</span>'}
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadMks();
+  // load extra students from localStorage
+  try{
+    const ex=JSON.parse(localStorage.getItem('sba_students_extra')||'[]');
+    ex.forEach(s=>{if(!STUDENTS.find(x=>x.e===s.e&&x.c===s.c))STUDENTS.push(s)})
+  }catch{}
+  document.getElementById('lp').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+});
+</script>
+</body>
+</html>
